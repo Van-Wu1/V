@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio | 23</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@200;300;400;500&family=JetBrains+Mono:wght@300;400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="./scr/css/cover.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        neutral: {
+                            850: '#1f1f1f',
+                            950: '#0a0a0a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body
+    class="bg-[#fcfcfc] dark:bg-[#050505] text-neutral-900 dark:text-neutral-100 font-sans antialiased selection:bg-neutral-900 selection:text-white dark:selection:bg-white dark:selection:text-black min-h-screen flex flex-col relative overflow-x-hidden cursor-none transition-colors duration-500">
+
+    <!-- Custom Cursor Element -->
+    <div id="cursor" class="cursor-dot hidden md:block"></div>
+
+    <!-- Background Grain -->
+    <div class="fixed inset-0 pointer-events-none z-50 mix-blend-multiply dark:mix-blend-overlay opacity-5 bg-grain">
+    </div>
+
+    <!-- Navigation -->
+    <nav
+        class="fixed top-0 left-0 w-full p-6 md:p-10 flex justify-between items-center z-40 mix-blend-difference text-white reveal-on-scroll is-visible">
+        <div class="hover-trigger text-sm tracking-widest uppercase font-medium cursor-none">M.L. / 23</div>
+
+        <div class="flex items-center gap-8">
+            <!-- Nav Links -->
+            <div class="hidden md:flex gap-6 text-xs tracking-wider">
+                <a href="#" class="hover-trigger hover:opacity-50 transition-opacity cursor-none">
+                    <span class="show-en">Index</span><span class="show-cn">索引</span>
+                </a>
+                <a href="#" class="hover-trigger hover:opacity-50 transition-opacity cursor-none">
+                    <span class="show-en">Work</span><span class="show-cn">作品</span>
+                </a>
+                <a href="#" class="hover-trigger hover:opacity-50 transition-opacity cursor-none">
+                    <span class="show-en">Journal</span><span class="show-cn">日志</span>
+                </a>
+            </div>
+
+            <!-- Controls Divider -->
+            <div class="w-[1px] h-4 bg-white/30 hidden md:block"></div>
+
+            <!-- Toggles -->
+            <div class="flex gap-4 items-center">
+                <!-- Lang Toggle -->
+                <button id="lang-toggle"
+                    class="hover-trigger text-xs font-mono tracking-wider hover:opacity-50 transition-opacity cursor-none w-8 text-center">
+                    <span class="show-en">CN</span>
+                    <span class="show-cn">EN</span>
+                </button>
+
+                <!-- Theme Toggle -->
+                <button id="theme-toggle" class="hover-trigger hover:opacity-50 transition-opacity cursor-none">
+                    <!-- Sun Icon (Show in Dark) -->
+                    <svg class="hidden dark:block w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="4" />
+                        <path d="M12 2v2" />
+                        <path d="M12 20v2" />
+                        <path d="m4.93 4.93 1.41 1.41" />
+                        <path d="m17.66 17.66 1.41 1.41" />
+                        <path d="M2 12h2" />
+                        <path d="M20 12h2" />
+                        <path d="m6.34 17.66-1.41 1.41" />
+                        <path d="m19.07 4.93-1.41 1.41" />
+                    </svg>
+                    <!-- Moon Icon (Show in Light) -->
+                    <svg class="block dark:hidden w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow md:px-10 w-full max-w-[1600px] mr-auto ml-auto pt-32 pr-6 pb-20 pl-6">
+
+        <!-- Hero Section -->
+        <section class="min-h-[70vh] flex flex-col justify-center relative mb-24">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-y-8 md:gap-y-0 w-full items-end">
+
+                <!-- Introduction -->
+                <div class="col-span-1 md:col-span-5 flex flex-col gap-6 reveal-on-scroll delay-[100ms] is-visible">
+                    <div class="flex items-center gap-3 text-neutral-400 dark:text-neutral-500">
+                        <span class="w-8 h-[1px] bg-neutral-300 dark:bg-neutral-700"></span>
+                        <span class="text-xs uppercase tracking-widest">
+                            <span class="show-en">Nameless</span>
+                            <span class="show-cn">查无此人</span>
+                        </span>
+                    </div>
+                    <p
+                        class="font-serif text-2xl md:text-3xl lg:text-4xl leading-snug font-light italic text-neutral-800 dark:text-neutral-200">
+                        <span class="show-en">"SPACE 404, <br> <span
+                                class="text-neutral-400 dark:text-neutral-600">WELCOME!</span>"</span>
+                        <span class="show-cn">"404空间，<br> <span
+                                class="text-neutral-400 dark:text-neutral-600">欢迎玩家。</span>"</span>
+                    </p>
+                    <div class="leading-relaxed text-sm font-light text-neutral-500 dark:text-neutral-400 max-w-sm">
+                        <span class="show-en">GISer & Developer based in the digital void. <br> Exploring the
+                            intersection of data and <br> emotive storytelling through code, lens, and sound.</span>
+                        <span class="show-cn">游走于数字虚空的 GISer 与开发者。<br> 通过代码、镜头与声音，<br> 探索数据与情感叙事的交汇点。</span>
+                    </div>
+
+                    <div class="flex gap-4 mt-4 text-neutral-900 dark:text-white">
+                        <span
+                            class="hover-trigger p-2 border border-neutral-200 dark:border-neutral-800 rounded-full hover:bg-neutral-900 hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors duration-300">
+                            <span class="iconify" data-icon="lucide:github" data-width="16"></span>
+                        </span>
+                        <span
+                            class="hover-trigger p-2 border border-neutral-200 dark:border-neutral-800 rounded-full hover:bg-neutral-900 hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors duration-300">
+                            <span class="iconify" data-icon="lucide:camera" data-width="16"></span>
+                        </span>
+                        <span
+                            class="hover-trigger p-2 border border-neutral-200 dark:border-neutral-800 rounded-full hover:bg-neutral-900 hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors duration-300">
+                            <span class="iconify" data-icon="lucide:music" data-width="16"></span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Spacer -->
+                <div class="hidden md:block col-span-1"></div>
+
+                <!-- Big Title (Parallax Effect) -->
+                <div class="col-span-1 md:col-span-6 relative reveal-on-scroll delay-[200ms] is-visible"
+                    id="hero-title">
+                    <h1
+                        class="text-7xl md:text-8xl lg:text-9xl font-medium tracking-tight leading-[0.85] select-none text-neutral-950 dark:text-white mix-blend-darken dark:mix-blend-normal">
+                        Vanora <br>
+                        <span
+                            class="font-serif font-light italic text-neutral-400 dark:text-neutral-600 ml-12 md:ml-24 block">@
+                            VVError</span>
+                    </h1>
+                </div>
+            </div>
+        </section>
+
+        <!-- Asymmetric Grid Layout -->
+        <section class="w-full">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 auto-rows-min">
+
+                <!-- Item 1: 摄影画廊 -->
+                <a href="./scr/html/photograph.html" class="block">
+                    <div
+                        class="tilt-card group relative md:col-span-1 h-[500px] md:h-[600px] bg-neutral-100 dark:bg-neutral-900 overflow-hidden reveal-on-scroll delay-[300ms] cursor-none shadow-sm dark:shadow-none border border-transparent dark:border-neutral-800">
+                        <div
+                            class="absolute inset-0 bg-neutral-900/10 dark:bg-black/40 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                        </div>
+                        <img src="../public/pic/2bd25f0a9858f47d60b67b84e1acceb0.jpg" alt="Landscape"
+                            class="w-full h-full object-cover grayscale contrast-125 dark:contrast-100 dark:brightness-90 img-zoom pointer-events-none">
+                        <div class="tilt-content absolute bottom-6 left-6 z-20 mix-blend-difference text-white">
+                            <span class="iconify block mb-2" data-icon="lucide:aperture" data-width="20"></span>
+                            <p class="font-serif italic text-xl">
+                                <span class="show-en">The World Observer</span>
+                                <span class="show-cn">人间观察者</span>
+                            </p>
+                            <span class="text-[10px] uppercase tracking-widest opacity-80 mt-1 block">
+                                <span class="show-en">London, 2025</span>
+                                <span class="show-cn">倫敦印象, 2025</span>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Column 2 -->
+                <div class="md:col-span-1 flex flex-col gap-4 md:gap-6 md:pt-24">
+
+                    <a href="./scr/html/academic.html" class="block">
+                        <!-- Item 2: 学术画廊 -->
+                        <div
+                            class="tilt-card bg-[#111] dark:bg-[#080808] dark:border dark:border-neutral-800 text-neutral-300 p-8 h-[300px] flex flex-col justify-between relative group overflow-hidden reveal-on-scroll delay-[100ms] cursor-none shadow-2xl shadow-neutral-200 dark:shadow-none">
+                            <div
+                                class="absolute top-0 right-0 p-32 bg-neutral-800/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-neutral-700/30 transition-colors duration-500">
+                            </div>
+
+                            <div class="tilt-content flex justify-between items-start z-10">
+                                <span class="iconify text-neutral-500" data-icon="lucide:terminal"
+                                    data-width="24"></span>
+                                <span
+                                    class="font-mono text-xs text-neutral-600 border border-neutral-800 px-2 py-1 rounded">GIS_LAYER_01</span>
+                            </div>
+
+                            <div class="tilt-content space-y-2 z-10">
+                                <div
+                                    class="h-[1px] w-full bg-neutral-800 group-hover:w-1/2 transition-all duration-700">
+                                </div>
+                                <p class="font-mono text-xs leading-relaxed text-neutral-400">
+                                    > initiating sequence...<br>
+                                    > rendering terrain mesh<br>
+                                    > <span class="text-emerald-500">success</span>: 34.05° N, 118.24° W
+                                </p>
+                            </div>
+
+                            <div class="tilt-content z-10">
+                                <h3
+                                    class="text-xl font-medium text-white tracking-tight group-hover:text-white transition-colors">
+                                    <span class="show-en">Spatial Logic</span>
+                                    <span class="show-cn">空间逻辑</span>
+                                </h3>
+                                <p class="text-xs text-neutral-500 mt-1">Python / React / Mapbox</p>
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- Item 3: 随笔画廊 -->
+                    <a href="./scr/html/notes.html" class="block">
+                        <div
+                            class="tilt-card bg-neutral-50 dark:bg-neutral-900 border border-neutral-100 dark:border-neutral-800 p-8 flex flex-col justify-center h-[280px] reveal-on-scroll delay-[200ms] hover:bg-white dark:hover:bg-neutral-850 hover:border-neutral-200 dark:hover:border-neutral-700 transition-all duration-300 cursor-none text-neutral-900 dark:text-neutral-100">
+                            <div class="tilt-content">
+                                <span class="iconify text-neutral-400 mb-4" data-icon="lucide:pen-tool"
+                                    data-width="20"></span>
+                                <p class="font-serif text-2xl leading-tight italic">
+                                    <span class="show-en">"There is a certain approach to solitude."</span>
+                                    <span class="show-cn">"孤岛方法论。"</span>
+                                </p>
+                                <div class="mt-6 flex items-center gap-2 hover-trigger">
+                                    <span
+                                        class="h-[1px] w-8 bg-neutral-300 dark:bg-neutral-600 group-hover:w-12 transition-all"></span>
+                                    <span
+                                        class="text-xs text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                                        <span class="show-en">Read Essay</span>
+                                        <span class="show-cn">阅读文章</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Item 4: 7788 画廊 -->
+                <a href="./scr/html/7788.html" class="block">
+                    <div
+                        class="tilt-card md:col-span-1 md:mt-12 h-[450px] relative border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-8 flex flex-col justify-between reveal-on-scroll delay-[300ms] cursor-none hover:shadow-xl hover:shadow-neutral-100 dark:hover:shadow-none transition-all duration-500">
+                        <div
+                            class="absolute top-0 left-0 w-full h-32 flex opacity-5 dark:opacity-[0.02] pointer-events-none">
+                            <div
+                                class="w-1/12 h-full border-r border-black dark:border-white bg-neutral-100 dark:bg-neutral-800">
+                            </div>
+                            <div class="w-1/12 h-20 bg-black dark:bg-white mx-[-1%] z-10"></div>
+                            <div
+                                class="w-1/12 h-full border-r border-black dark:border-white bg-neutral-100 dark:bg-neutral-800">
+                            </div>
+                            <div class="w-1/12 h-20 bg-black dark:bg-white mx-[-1%] z-10"></div>
+                            <div
+                                class="w-1/12 h-full border-r border-black dark:border-white bg-neutral-100 dark:bg-neutral-800">
+                            </div>
+                            <div
+                                class="w-1/12 h-full border-r border-black dark:border-white bg-neutral-100 dark:bg-neutral-800">
+                            </div>
+                        </div>
+
+                        <div class="mt-20 tilt-content">
+                            <div
+                                class="w-8 h-8 rounded-full border border-neutral-100 dark:border-neutral-700 flex items-center justify-center bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white">
+                                <span class="iconify" data-icon="lucide:mic-2" data-width="14"></span>
+                            </div>
+                            <h3
+                                class="mt-6 text-3xl font-serif italic font-light text-neutral-900 dark:text-neutral-100">
+                                <span class="show-en">Meteor No. 3</span>
+                                <span class="show-cn">流星第三章</span>
+                            </h3>
+                            <p class="text-xs text-neutral-400 mt-2 font-mono uppercase tracking-widest">
+                                <span class="show-en">Improvisation</span>
+                                <span class="show-cn">即兴创作</span>
+                            </p>
+                        </div>
+
+                        <div class="flex items-center gap-4 tilt-content">
+                            <button
+                                class="hover-trigger w-12 h-12 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-black flex items-center justify-center hover:scale-110 transition-transform shadow-lg shadow-neutral-200 dark:shadow-none">
+                                <span class="iconify ml-1" data-icon="lucide:play" data-width="18"
+                                    data-fill="currentColor"></span>
+                            </button>
+                            <div class="flex-grow h-[1px] bg-neutral-100 dark:bg-neutral-800 relative overflow-hidden">
+                                <div
+                                    class="absolute left-0 top-1/2 -translate-y-1/2 w-1/3 h-[2px] bg-neutral-900 dark:bg-neutral-500 animate-pulse">
+                                </div>
+                            </div>
+                            <span class="font-mono text-xs text-neutral-400">01:24</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer
+            class="mt-32 border-t border-neutral-200 dark:border-neutral-800 pt-10 pb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 reveal-on-scroll text-neutral-600 dark:text-neutral-400">
+            <div>
+                <p class="font-serif italic text-lg">
+                    <span class="show-en">SfM_17h-40V.</span>
+                    <span class="show-cn">SfM_17h-40Van.</span>
+                </p>
+            </div>
+
+            <div class="flex gap-8 text-xs font-mono uppercase tracking-widest text-neutral-400 dark:text-neutral-500">
+                <a href="#"
+                    class="hover-trigger hover:text-neutral-900 dark:hover:text-white transition-colors cursor-none">Email</a>
+                <a href="#"
+                    class="hover-trigger hover:text-neutral-900 dark:hover:text-white transition-colors cursor-none">Github</a>
+                <a href="#"
+                    class="hover-trigger hover:text-neutral-900 dark:hover:text-white transition-colors cursor-none">WeChat</a>
+            </div>
+
+            <div class="text-xs text-neutral-300 dark:text-neutral-700">
+                © 2025
+            </div>
+        </footer>
+
+    </main>
+
+    <script src="./scr/js/cover.js"></script>
+</body>
+
+</html>
