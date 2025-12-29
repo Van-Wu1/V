@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photograph | Portfolio</title>
+    <!-- 保持与主站一致的Head配置 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@200;300;400;500&family=JetBrains+Mono:wght@300;400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/cover.css"> <!-- 链接到主样式文件 -->
+    <link rel="stylesheet-s" href="photograph.css">
+    <style>
+        /* 覆盖与补充样式 */
+        .filter-active {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .dark .filter-active {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* 确保图片网格的动画 */
+        .photo-item {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        .photo-item.hidden {
+            display: none;
+        }
+
+        .photo-item.fade-out {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        /* 隐藏侧边栏滚动条，同时保留滚动功能 */
+        aside {
+            scrollbar-width: none;
+            /* 隐藏 Firefox 的滚动条 */
+            -ms-overflow-style: none;
+            /* 隐藏 IE 和 Edge 的滚动条 */
+        }
+
+        aside::-webkit-scrollbar {
+            display: none;
+            /* 隐藏 Chrome、Safari 和 Opera 的滚动条 */
+        }
+
+        /* 可选：为侧边栏添加更平滑的滚动 */
+        aside {
+            overflow-y: auto;
+            /* 确保可以滚动 */
+            scroll-behavior: smooth;
+            /* 可选：平滑滚动 */
+        }
+    </style>
+</head>
+
+<body
+    class="bg-[#fcfcfc] dark:bg-[#050505] text-neutral-900 dark:text-neutral-100 font-sans antialiased min-h-screen relative overflow-x-hidden transition-colors duration-500">
+
+    <!-- 自定义光标 (继承自主站) -->
+    <div id="cursor" class="cursor-dot hidden md:block"></div>
+    <!-- 背景纹理 -->
+    <div class="fixed inset-0 pointer-events-none z-40 mix-blend-multiply dark:mix-blend-overlay opacity-5 bg-grain">
+    </div>
+
+    <!-- 返回按钮 -->
+    <a href="../../index.html"
+        class="fixed top-6 left-6 z-50 hover-trigger p-3 border border-neutral-200 dark:border-neutral-800 rounded-full bg-white/80 dark:bg-neutral-900/80 backdrop-blur-sm hover:bg-white dark:hover:bg-neutral-800 transition-all duration-300 cursor-none shadow-sm">
+        <span class="iconify" data-icon="lucide:arrow-left" data-width="16"></span>
+    </a>
+
+    <!-- 主内容区：侧边栏 + 网格 -->
+    <main class="flex pt-20 pl-6 pr-6 md:pl-24 md:pr-6"> <!-- 左侧为侧边栏留出空间 -->
+
+        <!-- 左侧固定筛选面板 -->
+        <aside
+            class="fixed left-0 top-0 h-full w-64 pt-24 pr-8 pl-6 border-r border-neutral-200 dark:border-neutral-800 bg-transparent z-30 overflow-y-auto hidden md:block">
+            <div class="mb-10">
+                <div class="flex items-center gap-2 mb-6">
+                    <span class="w-8 h-[1px] bg-neutral-300 dark:bg-neutral-700"></span>
+                    <h2 class="text-xs uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
+                        <span class="show-en">Filter & Navigate</span>
+                        <span class="show-cn">筛选与导航</span>
+                    </h2>
+                </div>
+                <nav class="space-y-1">
+                    <!-- 所有照片 -->
+                    <button data-filter="all"
+                        class="filter-btn filter-active w-full text-left px-3 py-2 rounded text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-none">
+                        <span class="show-en">All Photos (52)</span>
+                        <span class="show-cn">全部照片 (52)</span>
+                    </button>
+                </nav>
+            </div>
+
+            <!-- 动态生成的筛选分类区 -->
+            <div id="filters-container">
+                <!-- JavaScript会在这里生成 "CAMERAS", "ALBUMS" 等分类组 -->
+            </div>
+
+            <!-- 胶片/配方信息 -->
+            <div class="mt-12 pt-8 border-t border-neutral-100 dark:border-neutral-800">
+                <p class="text-xs text-neutral-500 dark:text-neutral-400 mb-2">FUJIFILM X-T5</p>
+                <p class="text-xs text-neutral-500 dark:text-neutral-400">Classic Neg. / 35mm f/1.4</p>
+            </div>
+        </aside>
+
+        <!-- 右侧自适应图片网格容器 -->
+        <div class="flex-grow md:ml-64 pt-6"> <!-- margin-left 与侧边栏宽度一致 -->
+            <!-- 图片网格 -->
+            <div id="photo-grid" class="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
+                <!-- 图片项将由JavaScript动态生成 -->
+                <div class="text-center py-20 text-neutral-400" id="loading-indicator">
+                    <div
+                        class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-neutral-900 dark:border-white mb-4">
+                    </div>
+                    <p>Loading moments...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 移动端筛选触发按钮 -->
+    <button id="mobile-filter-toggle"
+        class="md:hidden fixed bottom-6 right-6 z-50 hover-trigger p-4 border border-neutral-200 dark:border-neutral-800 rounded-full bg-white/90 dark:bg-neutral-900/90 backdrop-blur-sm hover:bg-white dark:hover:bg-neutral-800 transition-all duration-300 cursor-none shadow-lg">
+        <span class="iconify" data-icon="lucide:filter" data-width="20"></span>
+    </button>
+
+    <!-- 链接到主站脚本和本页特定脚本 -->
+    <script src="../js/cover.js"></script>
+    <script>
+        // 页面特定的数据与脚本
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('Photograph gallery initializing...');
+
+            // 1. 定义图片数据和分类数据
+            const photoData = [
+                { id: 1, src: 'https://picsum.photos/600/800?random=1', alt: 'Urban geometry', tags: ['favs', 'Lbk'], camera: 'FUJIFILM X-T5', album: 'Krolls', lens: 'XF35mmF1.4 R', recipe: 'Classic Neg.' },
+                { id: 2, src: 'https://picsum.photos/600/600?random=2', alt: 'Portrait study', tags: ['portrait'], camera: 'iPhone 15 Pro', album: null, lens: null, recipe: null },
+                { id: 3, src: 'https://picsum.photos/800/600?random=3', alt: 'Night lights', tags: ['Lights', 'favs'], camera: 'FUJIFILM X-T5', album: null, lens: 'XF90mmF2 R LM WR', recipe: 'PROVIA/Std' },
+                // ... 这里可以继续添加更多图片数据，总共约50项
+                { id: 52, src: 'https://picsum.photos/700/500?random=52', alt: 'Final frame', tags: ['Nederland'], camera: 'FUJIFILM X-T1', album: 'Door County', lens: 'XF18mmF2 R', recipe: 'Superia 800' }
+            ];
+
+            const filterCategories = {
+                'Albums': { items: ['Krolls', 'Door County', 'Lbk'], icon: 'lucide:album' },
+                'Tags': { items: ['favs', 'Lbk', 'Lights', 'Nederland'], icon: 'lucide:tag' },
+                'Cameras': { items: ['FUJIFILM X-T5', 'FUJIFILM X-T1', 'iPhone 15 Pro', 'iPhone 13 Pro'], icon: 'lucide:camera' },
+                'Recipes': { items: ['Classic Neg.', 'PROVIA/Std', 'Superia 800', 'Pacific Blue'], icon: 'lucide:flask-conical' },
+                'Lenses': { items: ['XF35mmF1.4 R', 'XF90mmF2 R LM WR', 'XF70-300mm', 'XF18mmF2 R'], icon: 'lucide:aperture' }
+            };
+
+            // 2. 渲染筛选面板
+            function renderFilters() {
+                const container = document.getElementById('filters-container');
+                let html = '';
+                for (const [category, data] of Object.entries(filterCategories)) {
+                    html += `
+                        <div class="mb-10">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="iconify text-neutral-400" data-icon="${data.icon}" data-width="14"></span>
+                                <h3 class="text-xs uppercase tracking-widest text-neutral-500 dark:text-neutral-400">${category}</h3>
+                            </div>
+                            <nav class="space-y-1">
+                                ${data.items.map(item => `
+                                    <button data-filter="${category.toLowerCase()}:${item}" class="filter-btn w-full text-left px-3 py-2 rounded text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-none flex justify-between">
+                                        <span>${item}</span>
+                                        <span class="text-xs text-neutral-400">${photoData.filter(p =>
+                        category === 'Albums' ? p.album === item :
+                            category === 'Tags' ? p.tags?.includes(item) :
+                                category === 'Cameras' ? p.camera === item :
+                                    category === 'Recipes' ? p.recipe === item :
+                                        category === 'Lenses' ? p.lens === item : false
+                    ).length}</span>
+                                    </button>
+                                `).join('')}
+                            </nav>
+                        </div>
+                    `;
+                }
+                container.innerHTML = html;
+            }
+
+            // 3. 渲染图片网格
+            function renderPhotoGrid() {
+                const grid = document.getElementById('photo-grid');
+                const loadingIndicator = document.getElementById('loading-indicator');
+                if (loadingIndicator) loadingIndicator.remove();
+
+                let html = '';
+                photoData.forEach(photo => {
+                    // 将数据属性拼接为字符串，便于筛选
+                    const dataAttrs = `data-tags="${photo.tags?.join(',') || ''}" data-camera="${photo.camera || ''}" data-album="${photo.album || ''}" data-lens="${photo.lens || ''}" data-recipe="${photo.recipe || ''}"`;
+
+                    html += `
+                        <div class="photo-item break-inside-avoid mb-4 group relative overflow-hidden rounded-lg bg-neutral-100 dark:bg-neutral-900 hover:shadow-xl transition-shadow duration-300 cursor-none" ${dataAttrs} data-id="${photo.id}">
+                            <img src="${photo.src}" alt="${photo.alt}" class="w-full h-auto object-cover img-zoom">
+                            <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+                            <div class="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-gradient-to-t from-black/70 to-transparent">
+                                <p class="text-white text-sm">${photo.alt}</p>
+                                <p class="text-neutral-300 text-xs mt-1">${photo.camera || ''}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+                grid.innerHTML = html;
+
+                // 初始化滚动动画观察器（假设在script.js中定义了 'observer'）
+                if (window.observer) {
+                    document.querySelectorAll('.photo-item').forEach(el => window.observer.observe(el));
+                }
+            }
+
+            // 4. 筛选功能
+            let activeFilter = 'all';
+            function setupFiltering() {
+                document.addEventListener('click', function (e) {
+                    if (e.target.classList.contains('filter-btn')) {
+                        // 更新活动按钮样式
+                        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('filter-active'));
+                        e.target.classList.add('filter-active');
+
+                        // 获取筛选条件
+                        const filterValue = e.target.dataset.filter;
+                        activeFilter = filterValue;
+                        filterPhotos(filterValue);
+                    }
+                });
+            }
+
+            function filterPhotos(filter) {
+                const allPhotos = document.querySelectorAll('.photo-item');
+                const [category, value] = filter.includes(':') ? filter.split(':') : [filter, ''];
+
+                allPhotos.forEach(photo => {
+                    photo.classList.add('fade-out');
+                });
+
+                setTimeout(() => {
+                    allPhotos.forEach(photo => {
+                        let shouldShow = false;
+                        if (filter === 'all') {
+                            shouldShow = true;
+                        } else if (category && value) {
+                            // 根据不同的分类进行匹配
+                            switch (category) {
+                                case 'albums': shouldShow = photo.dataset.album === value; break;
+                                case 'tags': shouldShow = photo.dataset.tags.includes(value); break;
+                                case 'cameras': shouldShow = photo.dataset.camera === value; break;
+                                case 'recipes': shouldShow = photo.dataset.recipe === value; break;
+                                case 'lenses': shouldShow = photo.dataset.lens === value; break;
+                            }
+                        }
+
+                        if (shouldShow) {
+                            photo.classList.remove('hidden', 'fade-out');
+                            // 触发重排以重新应用动画
+                            void photo.offsetWidth;
+                        } else {
+                            photo.classList.add('hidden');
+                            photo.classList.remove('fade-out');
+                        }
+                    });
+                }, 200);
+            }
+
+            // 5. 移动端筛选面板控制
+            function setupMobileFilter() {
+                const toggleBtn = document.getElementById('mobile-filter-toggle');
+                const sidebar = document.querySelector('aside');
+                if (!toggleBtn || !sidebar) return;
+
+                toggleBtn.addEventListener('click', () => {
+                    sidebar.classList.toggle('hidden');
+                    // 简单实现：切换显示/隐藏。更佳做法是使用滑动面板。
+                });
+            }
+
+            // 6. 初始化所有功能
+            renderFilters();
+            renderPhotoGrid();
+            setupFiltering();
+            setupMobileFilter();
+
+            // 模拟网络延迟，展示加载效果
+            setTimeout(() => {
+                const loadingEl = document.getElementById('loading-indicator');
+                if (loadingEl && loadingEl.parentNode) {
+                    loadingEl.style.opacity = '0';
+                    setTimeout(() => loadingEl.remove(), 300);
+                }
+            }, 800);
+        });
+    </script>
+</body>
+
+
+</html>
