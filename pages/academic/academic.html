@@ -1,12 +1,439 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="zh-CN" class="scroll-smooth">
+
 <head>
-    学术head
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Space | Vanora</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=Inter:wght@200;300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        neutral: {
+                            850: '#1f1f1f',
+                            950: '#0a0a0a',
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Cormorant Garamond', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
+
+        /* 颗粒纹理 */
+        .bg-grain {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
+        }
+
+        /* 自定义光标 */
+        .cursor-dot {
+            width: 10px;
+            height: 10px;
+            background-color: white;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+            transition: transform 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            transform: translate(-50%, -50%);
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        /* 揭示动画 */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), 
+                        transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 语言切换逻辑 */
+        html:not(.lang-cn) .show-cn { display: none; }
+        html.lang-cn .show-en { display: none; }
+
+        /* 项目卡片 */
+        .project-card {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .dark .project-card { border: 1px solid rgba(255, 255, 255, 0.05); }
+        .project-card:hover {
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            transform: translateY(-8px);
+        }
+        .dark .project-card:hover { border: 1px solid rgba(255, 255, 255, 0.2); }
+
+        /* 重点词特效强化 */
+        .highlight {
+            position: relative;
+            display: inline-block;
+            font-weight: 600;
+            color: #000;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            padding: 0 2px;
+        }
+        .dark .highlight { color: #fff; }
+        
+        .highlight::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            left: 0;
+            width: 0;
+            height: 6px;
+            background: currentColor;
+            transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            opacity: 0.1;
+            z-index: -1;
+        }
+        .highlight:hover::after { width: 100%; opacity: 0.2; }
+        .highlight:hover {
+            transform: translateY(-2px);
+            letter-spacing: 0.02em;
+        }
+    </style>
 </head>
-<body>
-    学术body
+
+<body class="bg-[#fcfcfc] dark:bg-[#050505] text-neutral-900 dark:text-neutral-100 font-sans antialiased overflow-x-hidden cursor-none transition-colors duration-500">
+
+    <div id="cursor" class="cursor-dot hidden md:block"></div>
+    <!-- 噪点纹理 -->
+    <div class="fixed inset-0 pointer-events-none z-50 mix-blend-multiply dark:mix-blend-overlay opacity-5 bg-grain"></div>
+
+    <!-- 背景装饰：坐标系统参考 -->
+    <div class="fixed inset-0 pointer-events-none z-1 opacity-10 dark:opacity-20 font-mono text-[7px] uppercase tracking-[0.3em]">
+        <div class="absolute top-1/2 left-4 md:left-6 -translate-y-1/2 -rotate-90 origin-left">Coord_System_Ref: WGS84</div>
+        <div class="absolute top-1/2 right-4 md:right-6 -translate-y-1/2 rotate-90 origin-right">Project_Archive_v2.5</div>
+    </div>
+
+    <div id="canvas-container">
+        <canvas id="bg-canvas"></canvas>
+    </div>
+
+    <!-- Navigation: 响应式导航 -->
+    <nav class="fixed top-0 left-0 w-full px-6 py-6 md:px-12 md:py-6 flex justify-between items-center z-40 mix-blend-difference text-white">
+        <div class="flex items-center gap-4 md:gap-8">
+            <a href="../../index.html" class="hover-trigger flex items-center gap-2 group">
+                <span class="iconify opacity-40 group-hover:opacity-100 transition-opacity" data-icon="lucide:arrow-left" data-width="12"></span>
+                <span class="text-[9px] md:text-[10px] tracking-[0.2em] uppercase font-light opacity-40 group-hover:opacity-100 transition-opacity">
+                    <span class="show-en">Back</span><span class="show-cn">返回</span>
+                </span>
+            </a>
+            <div class="h-[10px] w-[1px] bg-white/20"></div>
+            <div class="hover-trigger text-[10px] md:text-[11px] tracking-[0.3em] uppercase font-light">Vanora <span class="opacity-40">/</span> Lab</div>
+        </div>
+        
+        <div class="flex items-center gap-6 md:gap-8">
+            <div class="hidden sm:flex gap-6 md:gap-8 text-[9px] tracking-[0.2em] uppercase font-light">
+                <a href="#" class="hover-trigger opacity-50 hover:opacity-100 transition-opacity">Index</a>
+                <a href="#" class="hover-trigger opacity-50 hover:opacity-100 transition-opacity">Research</a>
+            </div>
+            <div class="flex gap-4 md:gap-6">
+                <button id="lang-toggle" class="hover-trigger text-[9px] md:text-[10px] font-mono opacity-60 hover:opacity-100">
+                    <span class="show-en">CN</span><span class="show-cn">EN</span>
+                </button>
+                <button id="theme-toggle" class="hover-trigger opacity-60 hover:opacity-100">
+                    <span class="iconify dark:hidden" data-icon="lucide:moon" data-width="14"></span>
+                    <span class="iconify hidden dark:block" data-icon="lucide:sun" data-width="14"></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content: 自适应容器 -->
+    <main class="relative z-10 pt-24 sm:pt-28 md:pt-36 px-6 sm:px-12 md:px-24 pb-32 max-w-[1400px] mx-auto">
+        
+        <!-- Header Section -->
+        <header class="mb-20 md:mb-32 reveal">
+            <div class="flex items-center gap-4 mb-4 opacity-30">
+                <div class="h-[1px] w-8 bg-current"></div>
+                <span class="font-mono text-[8px] md:text-[9px] tracking-[0.4em] uppercase">Academic Profile & Vision</span>
+            </div>
+            
+            <!-- 加粗后的标题 -->
+            <h1 class="text-5xl sm:text-6xl md:text-[7.5rem] font-serif italic font-semibold mb-8 md:mb-12 leading-[0.9] tracking-tight">
+                <span class="show-en">Spatial<br>Inquiry.</span>
+                <span class="show-cn">空间<br>探寻.</span>
+            </h1>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-24 items-start">
+                <!-- 自我介绍 -->
+                <div class="text-neutral-500 dark:text-neutral-400 font-light leading-relaxed text-sm md:text-base space-y-6">
+                    <div class="show-en">
+                        <p>
+                            Driven by a lifelong fascination with geography since high school, I specialize in bridging the gap between <span class="highlight italic">Urban Spatial Science</span> and <span class="highlight italic">Visual Storytelling</span>. 
+                        </p>
+                        <p>
+                            My academic journey began at <span class="font-normal text-neutral-800 dark:text-neutral-200">Nanjing University of Information Science and Technology</span>, where I earned double degrees in GIS and Human-Physical Geography. Currently, I am advancing my research at <span class="highlight">CASA</span> within <span class="italic highlight">The Bartlett, UCL</span>.
+                        </p>
+                    </div>
+                    <div class="show-cn">
+                        <p>
+                            自高中起便深爱地理，热衷于以地理视角解构世界。我的核心研究方向在于将<span class="highlight italic">城市空间科学</span>与<span class="highlight italic">数据可视化</span>深度链接，以此洞察城市运作的隐形脉络。
+                        </p>
+                        <p>
+                            本科双学位毕业于<span class="font-medium text-neutral-800 dark:text-neutral-200">南京信息工程大学</span>（GIS 与 人文地理与自然地理）。目前深造于 <span class="highlight">UCL 巴特莱特学院 CASA 实验室</span>，致力于通过数据流动的视角探究城市形态。
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- 侧边信息：平板以上显示 -->
+                <div class="border-l border-neutral-200 dark:border-white/10 pl-8 py-2 space-y-8 font-mono text-[9px] md:text-[10px] uppercase tracking-[0.2em] text-neutral-400">
+                    <div>
+                        <span class="block text-neutral-900 dark:text-white mb-2 opacity-100">Focus Areas</span>
+                        <ul class="space-y-1">
+                            <li class="hover:text-black dark:hover:text-white transition-colors cursor-default">Urban Mobility Analysis</li>
+                            <li class="hover:text-black dark:hover:text-white transition-colors cursor-default">Geospatial Visualization</li>
+                            <li class="hover:text-black dark:hover:text-white transition-colors cursor-default">Data-Driven Design</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <span class="block text-neutral-900 dark:text-white mb-2 opacity-100">Philosophy</span>
+                        <p class="normal-case tracking-normal font-sans italic text-xs leading-relaxed max-w-xs">
+                            "Connecting the dots between raw coordinates and human experience."
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Project Grid: 响应式网格 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-y-16 md:gap-y-20 md:gap-x-16 lg:gap-x-24">
+            
+            <!-- Project 01 -->
+            <div class="project-item reveal" data-delay="0">
+                <div class="group relative">
+                    <div class="absolute -top-8 left-0 font-mono text-[8px] text-neutral-400 flex gap-4 opacity-40 group-hover:opacity-100 transition-opacity">
+                        <span>#01</span>
+                        <span>SFM_RECONSTRUCTION</span>
+                    </div>
+                    <div class="project-card aspect-[16/10] overflow-hidden relative">
+                        <div class="absolute inset-0 bg-neutral-100 dark:bg-neutral-950 opacity-20"></div>
+                        <div class="absolute inset-0 flex items-center justify-center opacity-5 group-hover:opacity-20 transition-opacity duration-1000">
+                             <span class="font-serif italic text-3xl md:text-4xl">Digital Twin</span>
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <h2 class="text-xl md:text-2xl font-serif italic mb-2">Urban Point-Cloud</h2>
+                        <p class="text-[11px] md:text-[12px] text-neutral-500 font-light leading-relaxed max-w-sm">
+                            <span class="show-en">Optimizing sparse reconstruction for dense urban environments using modified SfM pipelines.</span>
+                            <span class="show-cn">使用改进的 SfM 流程优化密集城市环境的稀疏重建。</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project 02 -->
+            <div class="project-item reveal md:mt-24" data-delay="100">
+                <div class="group relative">
+                    <div class="absolute -top-8 left-0 font-mono text-[8px] text-neutral-400 flex gap-4 opacity-40 group-hover:opacity-100 transition-opacity">
+                        <span>#02</span>
+                        <span>GIS_ANALYTICS</span>
+                    </div>
+                    <div class="project-card aspect-[16/10] overflow-hidden relative">
+                        <div class="absolute inset-0 bg-neutral-100 dark:bg-neutral-950 opacity-20"></div>
+                        <div class="absolute inset-0 flex items-center justify-center opacity-5 group-hover:opacity-20 transition-opacity duration-1000">
+                             <span class="font-serif italic text-3xl md:text-4xl">Spectral Map</span>
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <h2 class="text-xl md:text-2xl font-serif italic mb-2">Spectral Flow</h2>
+                        <p class="text-[11px] md:text-[12px] text-neutral-500 font-light leading-relaxed max-w-sm">
+                            <span class="show-en">Multispectral mapping of urban heat islands and vegetation health indices.</span>
+                            <span class="show-cn">城市热岛效应与植被健康指数的多光谱制图。</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project 03 -->
+            <div class="project-item reveal" data-delay="50">
+                <div class="group relative">
+                    <div class="absolute -top-8 left-0 font-mono text-[8px] text-neutral-400 flex gap-4 opacity-40 group-hover:opacity-100 transition-opacity">
+                        <span>#03</span>
+                        <span>INTERACTIVE_VIZ</span>
+                    </div>
+                    <div class="project-card aspect-[16/10] overflow-hidden relative">
+                        <div class="absolute inset-0 bg-neutral-100 dark:bg-neutral-950 opacity-20"></div>
+                        <div class="absolute inset-0 flex items-center justify-center opacity-5 group-hover:opacity-20 transition-opacity duration-1000">
+                             <span class="font-serif italic text-3xl md:text-4xl">Dynamic Data</span>
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <h2 class="text-xl md:text-2xl font-serif italic mb-2">Kinetic Geometry</h2>
+                        <p class="text-[11px] md:text-[12px] text-neutral-500 font-light leading-relaxed max-w-sm">
+                            <span class="show-en">A visual exploration of real-time data streams translated into adaptive geometric forms.</span>
+                            <span class="show-cn">将实时数据流转化为自适应几何形式的视觉探索。</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project 04 -->
+            <div class="project-item reveal md:mt-24" data-delay="150">
+                <div class="group relative">
+                    <div class="absolute -top-8 left-0 font-mono text-[8px] text-neutral-400 flex gap-4 opacity-40 group-hover:opacity-100 transition-opacity">
+                        <span>#04</span>
+                        <span>REMOTE_SENSING</span>
+                    </div>
+                    <div class="project-card aspect-[16/10] overflow-hidden relative">
+                        <div class="absolute inset-0 bg-neutral-100 dark:bg-neutral-950 opacity-20"></div>
+                        <div class="absolute inset-0 flex items-center justify-center opacity-5 group-hover:opacity-20 transition-opacity duration-1000">
+                             <span class="font-serif italic text-3xl md:text-4xl">Signal Process</span>
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <h2 class="text-xl md:text-2xl font-serif italic mb-2">Echo Mapping</h2>
+                        <p class="text-[11px] md:text-[12px] text-neutral-500 font-light leading-relaxed max-w-sm">
+                            <span class="show-en">Interpreting SAR signal data to visualize hidden terrain features in cloud-covered regions.</span>
+                            <span class="show-cn">解释 SAR 信号数据，以可视化云层覆盖区域的隐藏地形特征。</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer: 响应式页脚 -->
+    <footer class="relative z-10 px-6 sm:px-12 md:px-24 py-16 md:py-24 border-t border-neutral-200 dark:border-white/5 flex flex-col md:flex-row justify-between items-start gap-12">
+        <div class="max-w-xs">
+            <div class="font-serif italic text-2xl mb-4">SfM_17h-40V.</div>
+            <p class="text-[10px] font-mono uppercase tracking-widest text-neutral-400">Collaborative Research & Digital Design Lab ©2026</p>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-2 lg:flex gap-x-12 lg:gap-x-16 gap-y-4 font-mono text-[9px] tracking-[0.2em] uppercase text-neutral-400">
+            <a href="#" class="hover-trigger hover:text-black dark:hover:text-white transition-colors">GitHub</a>
+            <a href="#" class="hover-trigger hover:text-black dark:hover:text-white transition-colors">LinkedIn</a>
+            <a href="#" class="hover-trigger hover:text-black dark:hover:text-white transition-colors">Behance</a>
+            <a href="#" class="hover-trigger hover:text-black dark:hover:text-white transition-colors">Email</a>
+        </div>
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let points = [];
+        let mouse = { x: -1000, y: -1000 };
+
+        class Point {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.size = Math.random() * 1.2;
+                this.vx = (Math.random() - 0.5) * 0.12;
+                this.vy = (Math.random() - 0.5) * 0.12;
+            }
+            update() {
+                this.x += this.vx; this.y += this.vy;
+                let dx = mouse.x - this.x;
+                let dy = mouse.y - this.y;
+                let dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < 150) { // 减小干扰半径提高性能
+                    this.x += dx * 0.01;
+                    this.y += dy * 0.01;
+                }
+                if (this.x < 0 || this.x > width || this.y < 0 || this.y > height) this.reset();
+            }
+            draw(isDark) {
+                ctx.fillStyle = isDark ? `rgba(255, 255, 255, ${0.04 + Math.random() * 0.08})` : `rgba(0, 0, 0, 0.03)`;
+                ctx.fillRect(this.x, this.y, this.size, this.size);
+            }
+        }
+
+        function init() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            // 根据屏幕大小调整粒子数量
+            const count = width < 768 ? 150 : 300;
+            points = [];
+            for (let i = 0; i < count; i++) points.push(new Point());
+        }
+
+        window.addEventListener('resize', init);
+        init();
+
+        function draw() {
+            const isDark = document.documentElement.classList.contains('dark');
+            ctx.clearRect(0, 0, width, height);
+            
+            // 绘制网格背景
+            ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.012)' : 'rgba(0,0,0,0.012)';
+            ctx.beginPath();
+            const step = width < 768 ? 80 : 140;
+            for(let x=0; x<width; x+=step) { ctx.moveTo(x, 0); ctx.lineTo(x, height); }
+            for(let y=0; y<height; y+=step) { ctx.moveTo(0, y); ctx.lineTo(width, y); }
+            ctx.stroke();
+
+            points.forEach(p => { p.update(); p.draw(isDark); });
+            requestAnimationFrame(draw);
+        }
+        draw();
+
+        // 鼠标与光标逻辑
+        const cursor = document.getElementById('cursor');
+        document.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+            if (cursor) {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+            }
+        });
+
+        // 悬停交互
+        const updateCursor = () => {
+            document.querySelectorAll('.hover-trigger, .highlight, a, button').forEach(t => {
+                t.addEventListener('mouseenter', () => cursor.style.transform = 'translate(-50%, -50%) scale(4)');
+                t.addEventListener('mouseleave', () => cursor.style.transform = 'translate(-50%, -50%) scale(1)');
+            });
+        };
+        updateCursor();
+
+        // 滚动揭示
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const delay = parseInt(entry.target.getAttribute('data-delay') || 0);
+                    setTimeout(() => {
+                        entry.target.classList.add('active');
+                    }, delay);
+                }
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal').forEach(r => observer.observe(r));
+
+        // 控制器
+        document.getElementById('theme-toggle').addEventListener('click', () => document.documentElement.classList.toggle('dark'));
+        document.getElementById('lang-toggle').addEventListener('click', () => document.documentElement.classList.toggle('lang-cn'));
+    </script>
 </body>
-<footer>
-    学术footer
-</footer>
 </html>
