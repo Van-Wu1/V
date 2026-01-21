@@ -1,12 +1,386 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="zh-CN" class="scroll-smooth dark">
+
 <head>
-    随笔head
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes | Vanora</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@300&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['Cormorant Garamond', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        contrast: {
+                            light: '#ffffff',
+                            dark: '#000000',
+                            mid: '#888888'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
+        
+        :root {
+            --content-scale: 1; 
+        }
+
+        .bg-grain {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
+        }
+
+        #scalable-content {
+            font-size: calc(1rem * var(--content-scale));
+            transition: font-size 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* 列表项设计 */
+        .note-card {
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            border-radius: 8px; 
+        }
+        .dark .note-card {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .note-card:hover {
+            background: rgba(0, 0, 0, 0.02);
+            border-bottom-color: transparent;
+        }
+        .dark .note-card:hover {
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom-color: transparent;
+        }
+
+        /* 筛选器特定样式 */
+        .filter-btn {
+            position: relative;
+            transition: all 0.3s ease;
+            font-weight: 400;
+        }
+        .filter-btn.font-bold {
+            font-weight: 600;
+        }
+        .filter-btn.opacity-40 {
+            opacity: 0.25;
+        }
+        
+        /* 隐藏搜索框的点击蓝框/白框 */
+        input:focus {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        .dropdown-panel {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 1rem;
+            min-width: 160px;
+            z-index: 50;
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        .dark .dropdown-panel {
+            background: #111;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .filter-group:hover .dropdown-panel {
+            display: block;
+        }
+
+        .note-title {
+            display: inline-block;
+            transition: all 0.5s ease;
+            font-style: normal;
+        }
+        .note-card:hover .note-title {
+            font-style: italic;
+            transform: translateX(4px);
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 字体控制 */
+        .font-controller {
+            width: 40px;
+            overflow: hidden;
+            transition: width 0.7s cubic-bezier(0.16, 1, 0.3, 1), background 0.4s ease;
+            display: flex;
+            flex-direction: row-reverse;
+            align-items: center;
+            border-radius: 4px;
+        }
+        .font-controller:hover, .font-controller.active {
+            width: 280px; 
+            background: #000;
+            color: #fff;
+        }
+        .dark .font-controller:hover, .dark .font-controller.active {
+            background: #fff;
+            color: #000;
+        }
+
+        .font-step-unit {
+            opacity: 0;
+            transform: translateX(-15px);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .font-controller:hover .font-step-unit, .font-controller.active .font-step-unit {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: white;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+            transition: transform 0.2s ease-out;
+            transform: translate(-50%, -50%);
+        }
+
+        .grid-bg {
+            position: fixed;
+            inset: 0;
+            background-image: radial-gradient(circle, currentColor 1px, transparent 1px);
+            background-size: 60px 60px;
+            opacity: 0.03;
+            pointer-events: none;
+        }
+
+        /* 解决搜索框清空按钮的样式问题 */
+        input::-webkit-search-cancel-button {
+            display: none;
+        }
+    </style>
 </head>
-<body>
-    随笔body
+
+<body class="bg-[#ffffff] dark:bg-[#0a0a0a] text-neutral-900 dark:text-neutral-100 font-sans antialiased cursor-none transition-colors duration-500 overflow-x-hidden">
+
+    <div id="cursor" class="cursor-dot hidden md:block"></div>
+    <div class="fixed inset-0 pointer-events-none z-50 mix-blend-multiply dark:mix-blend-overlay opacity-[0.04] bg-grain"></div>
+    <div class="grid-bg"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 w-full px-6 py-8 md:px-12 flex justify-between items-center z-40 mix-blend-difference text-white">
+        <div class="flex items-center gap-6">
+            <a href="../../index.html" class="hover-trigger flex items-center gap-2 group">
+                <span class="iconify opacity-60 group-hover:opacity-100 transition-opacity" data-icon="lucide:arrow-left" data-width="14"></span>
+                <span class="text-[10px] tracking-[0.2em] uppercase font-medium opacity-60 group-hover:opacity-100 transition-opacity">Return</span>
+            </a>
+        </div>
+        
+        <div class="flex gap-2 items-center">
+            <div id="font-controller" class="font-controller h-10 border border-white/20">
+                <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center cursor-pointer">
+                    <span class="iconify" data-icon="lucide:type" data-width="16"></span>
+                </div>
+                
+                <div class="flex items-center justify-around flex-1 px-4">
+                    <button class="font-step-unit text-[9px] font-mono opacity-30 hover:opacity-100 transition-all">XS</button>
+                    <button class="font-step-unit text-[10px] font-mono opacity-50 hover:opacity-100 transition-all">S</button>
+                    <button class="font-step-unit text-[11px] font-mono opacity-70 hover:opacity-100 transition-all">M</button>
+                    <button class="font-step-unit text-[12px] font-mono opacity-90 hover:opacity-100 transition-all">L</button>
+                    <button class="font-step-unit text-[13px] font-mono opacity-100 transition-all">XL</button>
+                </div>
+            </div>
+
+            <button id="theme-toggle" class="hover-trigger border border-white/20 w-10 h-10 flex items-center justify-center">
+                <span class="iconify dark:hidden" data-icon="lucide:moon" data-width="14"></span>
+                <span class="iconify hidden dark:block" data-icon="lucide:sun" data-width="14"></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Content Area -->
+    <main id="scalable-content" class="relative z-10 pt-48 px-6 md:px-24 max-w-5xl mx-auto">
+        
+        <header class="mb-16 reveal flex flex-col md:flex-row md:items-end justify-between gap-12">
+            <div class="max-w-2xl">
+                <div class="flex items-center gap-3 mb-6">
+                    <span class="text-[10px] font-mono bg-neutral-900 text-white dark:bg-white dark:text-black px-2 py-0.5 uppercase tracking-widest">Archive 02</span>
+                    <span class="text-[10px] font-mono opacity-30 uppercase tracking-widest">Digital Journal</span>
+                </div>
+                <h1 class="text-7xl md:text-8xl font-serif italic text-neutral-900 dark:text-white leading-[0.9] tracking-tighter">
+                    碎碎念 <br> <span class="not-italic opacity-20">&</span> 反思
+                </h1>
+            </div>
+            <div class="md:w-64 pb-4 border-b border-neutral-900 dark:border-white">
+                <p class="text-[11px] font-mono uppercase tracking-[0.2em] leading-relaxed opacity-40">
+                    Exploring the intersections of geometric logic and human experience.
+                </p>
+            </div>
+        </header>
+
+        <!-- Refined Filter Bar -->
+        <div class="mb-24 reveal flex flex-col md:flex-row items-center justify-start gap-12 border-y border-neutral-100 dark:border-white/10 py-6 px-8 -mx-8 text-[10px] font-mono tracking-[0.2em] uppercase">
+            
+            <!-- 1. 默认 -->
+            <button class="filter-btn font-bold opacity-100" id="default-filter-btn">默认</button>
+
+            <!-- 2. 发表日期 (带切换暗示的箭头) -->
+            <button class="filter-btn opacity-40 hover:opacity-100 flex items-center gap-2 group" id="date-sort-btn">
+                生产日期
+                <div class="flex flex-col -gap-1 scale-75 opacity-50">
+                    <span class="iconify" data-icon="lucide:chevron-up" data-width="10"></span>
+                    <span class="iconify -mt-1" data-icon="lucide:chevron-down" data-width="10"></span>
+                </div>
+            </button>
+
+            <!-- 3. 类别 (带有 Dropdown 浮窗) -->
+            <div class="filter-group relative flex items-center gap-2 cursor-pointer opacity-40 hover:opacity-100">
+                类别
+                <span class="iconify" data-icon="lucide:plus" data-width="10"></span>
+                
+                <!-- Dropdown 面板 -->
+                <div class="dropdown-panel p-4 shadow-2xl">
+                    <div class="flex flex-col gap-4">
+                        <label class="flex items-center gap-3 cursor-pointer hover:translate-x-1 transition-transform">
+                            <input type="checkbox" class="accent-current">
+                            <span>#Spatial_Inquiry</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer hover:translate-x-1 transition-transform">
+                            <input type="checkbox" class="accent-current">
+                            <span>#Reflection</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer hover:translate-x-1 transition-transform">
+                            <input type="checkbox" class="accent-current">
+                            <span>#Code_Logic</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer hover:translate-x-1 transition-transform">
+                            <input type="checkbox" class="accent-current">
+                            <span>#Daily_Meditations</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. 搜搜 (极简无边框搜索) -->
+            <div class="flex-1 flex items-center md:justify-end gap-3 group">
+                <span class="iconify opacity-20 group-focus-within:opacity-100 transition-opacity" data-icon="lucide:search" data-width="12"></span>
+                <input type="search" placeholder="搜搜..." class="bg-transparent border-none p-0 w-32 md:w-48 placeholder:opacity-20">
+            </div>
+        </div>
+
+        <div class="divide-y divide-neutral-100 dark:divide-neutral-900">
+            
+            <!-- 暂无相关内容提示 -->
+            <div id="no-results-message" class="hidden py-32 px-8 text-center">
+                <p class="text-xl md:text-2xl font-serif italic text-neutral-400 dark:text-neutral-600 mb-4">
+                    <span class="show-en">No Results Found</span>
+                    <span class="show-cn">暂无相关内容</span>
+                </p>
+                <p class="text-sm text-neutral-400 dark:text-neutral-600 font-light">
+                    <span class="show-en">Try different keywords or filters</span>
+                    <span class="show-cn">尝试使用其他关键词或筛选条件</span>
+                </p>
+            </div>
+            
+            <article class="note-card py-20 px-8 -mx-8 group cursor-pointer reveal" style="transition-delay: 0.1s;">
+                <div class="flex flex-col md:flex-row gap-12">
+                    <div class="md:w-1/4">
+                        <span class="font-mono text-[10px] opacity-20 tracking-[0.4em] uppercase block mb-2">Dec 2024</span>
+                        <span class="font-mono text-[9px] opacity-10 uppercase block">#Spatial_Inquiry</span>
+                    </div>
+                    <div class="flex-1">
+                        <h2 class="note-title text-4xl md:text-5xl font-serif text-neutral-900 dark:text-white leading-tight">伦敦街头看不见的脉搏</h2>
+                        <p class="mt-6 text-base md:text-lg text-neutral-500 dark:text-neutral-400 font-light leading-relaxed max-w-2xl">
+                            观察数据流如何模拟伦敦东区历史悠久的步行路径，这些细微的流动构成了城市的非物质肌理。我们往往只能看到建筑，却忽略了人流编织的无形网络。
+                        </p>
+                        <div class="mt-10 flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-[-10px] group-hover:translate-x-0">
+                            <span class="text-[10px] font-mono uppercase tracking-widest">View Full Entry</span>
+                            <div class="h-[1px] w-12 bg-current opacity-30"></div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="note-card py-20 px-8 -mx-8 group cursor-pointer reveal" style="transition-delay: 0.2s;">
+                <div class="flex flex-col md:flex-row gap-12">
+                    <div class="md:w-1/4">
+                        <span class="font-mono text-[10px] opacity-20 tracking-[0.4em] uppercase block mb-2">Nov 2024</span>
+                        <span class="font-mono text-[9px] opacity-10 uppercase block">#Reflection</span>
+                    </div>
+                    <div class="flex-1">
+                        <h2 class="note-title text-4xl md:text-5xl font-serif text-neutral-900 dark:text-white leading-tight">在清晨的咖啡中寻找几何</h2>
+                        <p class="mt-6 text-base md:text-lg text-neutral-500 dark:text-neutral-400 font-light leading-relaxed max-w-2xl">
+                            流体的波纹、光线的折射，日常的重复中其实藏着宇宙最基础的逻辑。每一个气泡的破裂都遵循着某种严密的数学模型。
+                        </p>
+                        <div class="mt-10 flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-[-10px] group-hover:translate-x-0">
+                            <span class="text-[10px] font-mono uppercase tracking-widest">View Full Entry</span>
+                            <div class="h-[1px] w-12 bg-current opacity-30"></div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+        </div>
+
+        <footer class="mt-40 border-t border-neutral-900 dark:border-white pt-20 pb-32 reveal">
+            <div class="flex flex-col md:flex-row justify-between gap-16">
+                <div class="max-w-sm">
+                    <h3 class="text-2xl font-serif italic mb-6">Vanora Space</h3>
+                    <p class="text-[11px] font-mono uppercase tracking-[0.2em] opacity-40 leading-loose">
+                        A digital environment for architectural thoughts, code manifestos, and daily meditations.
+                    </p>
+                </div>
+                <div class="grid grid-cols-2 md:flex gap-16 md:gap-24">
+                    <div class="flex flex-col gap-4 text-[10px] font-mono uppercase tracking-[0.4em]">
+                        <span class="opacity-20 mb-2 italic">Connect</span>
+                        <a href="#" class="hover-trigger hover:opacity-50 transition-opacity">Instagram</a>
+                        <a href="#" class="hover-trigger hover:opacity-50 transition-opacity">Are.na</a>
+                    </div>
+                    <div class="flex flex-col gap-4 text-[10px] font-mono uppercase tracking-[0.4em]">
+                        <span class="opacity-20 mb-2 italic">Studio</span>
+                        <span class="opacity-60">London / UK</span>
+                        <span class="opacity-60">Remote / Global</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-32 flex flex-col md:flex-row justify-between items-center gap-8">
+                <div class="flex items-center gap-4">
+                    <div class="w-2 h-2 bg-neutral-900 dark:bg-white rounded-full"></div>
+                    <span class="text-[9px] font-mono uppercase tracking-[0.5em] opacity-30">All Rights Reserved © 2024</span>
+                </div>
+                <div class="flex gap-12 text-[9px] font-mono uppercase tracking-[0.3em] opacity-30">
+                    <a href="#" class="hover:opacity-100 transition-opacity">Privacy</a>
+                    <a href="#" class="hover:opacity-100 transition-opacity">Terms</a>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <script src="notes.js"></script>
 </body>
-<footer>
-    随笔footer
-</footer>
 </html>
