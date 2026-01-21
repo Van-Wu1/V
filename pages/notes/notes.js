@@ -1,37 +1,101 @@
+// ===== 全局文章数据 =====
+let allArticlesData = [];
+let articlesContainer = null;
+
+// ===== 加载所有文章 JSON =====
+async function loadAllArticles() {
+    try {
+        // 加载文章列表 manifest
+        const manifestResponse = await fetch('./content/articles-manifest.json');
+        const manifest = await manifestResponse.json();
+        
+        // 加载所有文章 JSON
+        const articlePromises = manifest.articles.map(fileName => 
+            fetch(`./content/${fileName}`).then(res => res.json())
+        );
+        
+        allArticlesData = await Promise.all(articlePromises);
+        
+        // 为每篇文章添加 DOM 元素引用（稍后设置）
+        allArticlesData.forEach((article, index) => {
+            article.originalIndex = index;
+            article.element = null;
+        });
+        
+        return allArticlesData;
+    } catch (error) {
+        console.error('Error loading articles:', error);
+        return [];
+    }
+}
+
+// ===== 渲染文章列表 =====
+function renderArticles() {
+    if (!articlesContainer) {
+        articlesContainer = document.querySelector('.divide-y');
+        if (!articlesContainer) return;
+    }
+    
+    // 清空容器（保留"暂无相关内容"提示）
+    const noResultsMessage = document.getElementById('no-results-message');
+    articlesContainer.innerHTML = '';
+    if (noResultsMessage) {
+        articlesContainer.appendChild(noResultsMessage);
+    }
+    
+    // 渲染每篇文章
+    allArticlesData.forEach((article, index) => {
+        const articleElement = createArticleElement(article, index);
+        articlesContainer.appendChild(articleElement);
+        article.element = articleElement;
+    });
+    
+    // 重新初始化滚动揭示动画
+    setupRevealAnimation();
+    
+    // 重新初始化悬停光标
+    setupHoverCursor();
+}
+
+// ===== 创建文章 HTML 元素 =====
+function createArticleElement(article, index) {
+    const articleDiv = document.createElement('article');
+    articleDiv.className = 'note-card py-20 px-8 -mx-8 group cursor-pointer reveal';
+    articleDiv.style.transitionDelay = article.revealDelay || `${index * 0.1}s`;
+    articleDiv.dataset.articleId = article.id;
+    articleDiv.dataset.tag = article.tag;
+    articleDiv.dataset.sortableDate = article.sortableDate;
+    
+    // 直接使用 JSON 中的 date 字段显示完整日期
+    const dateDisplay = article.date || '';
+    
+    articleDiv.innerHTML = `
+        <div class="flex flex-col md:flex-row gap-12">
+            <div class="md:w-1/4">
+                <span class="font-mono text-[10px] opacity-20 tracking-[0.4em] uppercase block mb-2">${dateDisplay}</span>
+                <span class="font-mono text-[9px] opacity-10 uppercase block">${article.tag}</span>
+            </div>
+            <div class="flex-1">
+                <h2 class="note-title text-4xl md:text-5xl font-serif text-neutral-900 dark:text-white leading-tight">${article.title}</h2>
+                <p class="mt-6 text-base md:text-lg text-neutral-500 dark:text-neutral-400 font-light leading-relaxed max-w-2xl">${article.excerpt}</p>
+                <div class="mt-10 flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-[-10px] group-hover:translate-x-0">
+                    <span class="text-[10px] font-mono uppercase tracking-widest">View Full Entry</span>
+                    <div class="h-[1px] w-12 bg-current opacity-30"></div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    return articleDiv;
+}
+
 // ===== 文章数据提取和管理 =====
 function extractArticleData() {
-    const articles = [];
-    document.querySelectorAll('.note-card').forEach((card, index) => {
-        const dateText = card.querySelector('span[class*="tracking-[0.4em]"]')?.textContent?.trim() || '';
-        const tagText = card.querySelector('span[class*="opacity-10"]')?.textContent?.trim() || '';
-        const titleText = card.querySelector('.note-title')?.textContent?.trim() || '';
-        const contentText = card.querySelector('p')?.textContent?.trim() || '';
-        
-        // 解析日期为可排序的格式（例如 "Dec 2024" -> 2024-12）
-        const dateMatch = dateText.match(/(\w+)\s+(\d+)/);
-        let sortableDate = '';
-        if (dateMatch) {
-            const monthMap = {
-                'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04',
-                'May': '05', 'Jun': '06', 'Jul': '07', 'Aug': '08',
-                'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
-            };
-            const month = monthMap[dateMatch[1]] || '01';
-            const year = dateMatch[2];
-            sortableDate = `${year}-${month}`;
-        }
-        
-        articles.push({
-            element: card,
-            date: dateText,
-            sortableDate: sortableDate,
-            tag: tagText,
-            title: titleText,
-            content: contentText,
-            originalIndex: index
-        });
-    });
-    return articles;
+    // 从全局数据中返回，但确保 element 引用是最新的
+    return allArticlesData.map(article => ({
+        ...article,
+        element: article.element || document.querySelector(`[data-article-id="${article.id}"]`)
+    }));
 }
 
 // ===== 搜索功能 =====
@@ -40,18 +104,17 @@ function setupSearch() {
     if (!searchInput) return;
     
     function performSearch(query) {
-        const allArticles = extractArticleData();
-        
         if (!query.trim()) {
             // 如果没有搜索词，显示所有文章（但保留其他筛选的影响）
             // 需要重新应用类别筛选和排序
             const currentCategories = new Set();
             document.querySelectorAll('.dropdown-panel input[type="checkbox"]:checked').forEach(cb => {
-                const category = cb.nextElementSibling.textContent.trim();
+                const category = cb.dataset.category || cb.nextElementSibling.textContent.trim();
                 currentCategories.add(category);
             });
             
-            allArticles.forEach(article => {
+            allArticlesData.forEach(article => {
+                if (!article.element) return;
                 // 如果类别筛选激活，只显示匹配的
                 if (currentCategories.size > 0) {
                     if (currentCategories.has(article.tag)) {
@@ -71,23 +134,24 @@ function setupSearch() {
         }
         
         const searchLower = query.toLowerCase();
-        let hasResults = false;
         
-        allArticles.forEach(article => {
+        allArticlesData.forEach(article => {
+            if (!article.element) return;
+            
             const matchesTitle = article.title.toLowerCase().includes(searchLower);
-            const matchesContent = article.content.toLowerCase().includes(searchLower);
+            const matchesContent = (article.excerpt || '').toLowerCase().includes(searchLower);
             const matchesTag = article.tag.toLowerCase().includes(searchLower);
             
             if (matchesTitle || matchesContent || matchesTag) {
                 // 还要考虑类别筛选
                 const currentCategories = new Set();
                 document.querySelectorAll('.dropdown-panel input[type="checkbox"]:checked').forEach(cb => {
-                    currentCategories.add(cb.nextElementSibling.textContent.trim());
+                    const category = cb.dataset.category || cb.nextElementSibling.textContent.trim();
+                    currentCategories.add(category);
                 });
                 
                 if (currentCategories.size === 0 || currentCategories.has(article.tag)) {
                     article.element.style.display = '';
-                    hasResults = true;
                 } else {
                     article.element.style.display = 'none';
                 }
@@ -120,7 +184,7 @@ function setupSearch() {
 function setupFontSizeControl() {
     const fontController = document.getElementById('font-controller');
     const scalableContent = document.getElementById('scalable-content');
-    if (!fontController || !scalableContent) return;
+    if (!fontController) return;
     
     const fontSizeMap = {
         'XS': 0.85,
@@ -133,26 +197,33 @@ function setupFontSizeControl() {
     // 初始化：设置为 M（默认）
     document.documentElement.style.setProperty('--content-scale', '1');
     
-    // 获取所有字体大小按钮
-    const fontButtons = fontController.querySelectorAll('.font-step-unit');
-    
-    fontButtons.forEach(button => {
-        button.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const size = button.textContent.trim();
-            const scale = fontSizeMap[size] || 1.0;
-            
-            // 更新 CSS 变量
-            document.documentElement.style.setProperty('--content-scale', scale.toString());
-            
-            // 视觉反馈：可以添加活动状态样式
-            fontButtons.forEach(btn => btn.classList.remove('font-bold'));
-            button.classList.add('font-bold');
-            
-            // 关闭字体控制器
-            fontController.classList.remove('active');
+    // 使用事件委托，确保能捕获到按钮点击
+    fontController.addEventListener('click', (e) => {
+        // 检查是否点击的是字体大小按钮
+        const button = e.target.closest('.font-step-unit');
+        if (!button) return;
+        
+        e.stopPropagation(); // 阻止事件冒泡到 document
+        e.preventDefault(); // 阻止默认行为
+        
+        const size = button.textContent.trim();
+        const scale = fontSizeMap[size] || 1.0;
+        
+        // 更新 CSS 变量
+        document.documentElement.style.setProperty('--content-scale', scale.toString());
+        
+        // 视觉反馈：移除所有按钮的粗体，给当前按钮添加粗体
+        const fontButtons = fontController.querySelectorAll('.font-step-unit');
+        fontButtons.forEach(btn => {
+            btn.classList.remove('font-bold');
+            // 重置所有按钮的 opacity
+            btn.style.opacity = '';
         });
-    });
+        button.classList.add('font-bold');
+        
+        // 关闭字体控制器
+        fontController.classList.remove('active');
+    }, true); // 使用捕获阶段，确保先于其他监听器执行
 }
 
 // ===== 检查并显示"暂无相关内容" =====
@@ -160,8 +231,8 @@ function checkAndShowNoResults() {
     const noResultsMessage = document.getElementById('no-results-message');
     if (!noResultsMessage) return;
     
-    const allArticles = extractArticleData();
-    const visibleCount = allArticles.filter(article => {
+    const visibleCount = allArticlesData.filter(article => {
+        if (!article.element) return false;
         return window.getComputedStyle(article.element).display !== 'none';
     }).length;
     
@@ -176,12 +247,16 @@ function checkAndShowNoResults() {
 function setupFilters() {
     const defaultBtn = document.getElementById('default-filter-btn');
     const dateSortBtn = document.getElementById('date-sort-btn');
-    const categoryCheckboxes = document.querySelectorAll('.dropdown-panel input[type="checkbox"]');
     const articlesContainer = document.querySelector('.divide-y');
     
-    let allArticles = extractArticleData();
+    // 使用全局的文章数据
     let currentSortOrder = null; // null: 默认, 'asc': 升序, 'desc': 降序
     let selectedCategories = new Set();
+    
+    // 动态获取类别复选框（在类别生成后）
+    const getCategoryCheckboxes = () => {
+        return document.querySelectorAll('.dropdown-panel input[type="checkbox"]');
+    };
     
     // 默认按钮：重置所有筛选
     if (defaultBtn) {
@@ -195,17 +270,19 @@ function setupFilters() {
             
             // 重置类别筛选
             selectedCategories.clear();
-            categoryCheckboxes.forEach(cb => cb.checked = false);
+            getCategoryCheckboxes().forEach(cb => cb.checked = false);
             
             // 重置搜索
             const searchInput = document.querySelector('input[type="search"]');
             if (searchInput) searchInput.value = '';
             
             // 显示所有文章并恢复原始顺序
-            allArticles.forEach(article => {
-                article.element.style.display = '';
+            allArticlesData.forEach(article => {
+                if (article.element) {
+                    article.element.style.display = '';
+                }
             });
-            renderArticles(allArticles, false);
+            renderArticles();
             
             // 重置默认按钮样式
             defaultBtn.classList.add('font-bold');
@@ -234,7 +311,7 @@ function setupFilters() {
             }
             
             // 排序文章
-            const sortedArticles = [...allArticles].sort((a, b) => {
+            const sortedArticles = [...allArticlesData].sort((a, b) => {
                 if (currentSortOrder === 'asc') {
                     return a.sortableDate.localeCompare(b.sortableDate);
                 } else {
@@ -242,30 +319,41 @@ function setupFilters() {
                 }
             });
             
-            renderArticles(sortedArticles, false);
+            // 重新渲染排序后的文章
+            renderArticles();
+            
+            // 重新排序 DOM 元素
+            sortedArticles.forEach(article => {
+                if (article.element) {
+                    articlesContainer.appendChild(article.element);
+                }
+            });
             
             // 检查是否需要显示"暂无相关内容"
             checkAndShowNoResults();
         });
     }
     
-    // 类别筛选
-    categoryCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', () => {
-            const category = checkbox.nextElementSibling.textContent.trim();
-            
-            if (checkbox.checked) {
-                selectedCategories.add(category);
-            } else {
-                selectedCategories.delete(category);
+    // 类别筛选（使用事件委托，支持动态生成的选项）
+    const dropdownPanel = document.querySelector('.dropdown-panel');
+    if (dropdownPanel) {
+        dropdownPanel.addEventListener('change', (e) => {
+            if (e.target.type === 'checkbox') {
+                const category = e.target.dataset.category || e.target.nextElementSibling.textContent.trim();
+                
+                if (e.target.checked) {
+                    selectedCategories.add(category);
+                } else {
+                    selectedCategories.delete(category);
+                }
+                
+                filterAndRender();
             }
-            
-            filterAndRender();
         });
-    });
+    }
     
     function filterAndRender() {
-        let filteredArticles = [...allArticles];
+        let filteredArticles = [...allArticlesData];
         
         // 类别筛选
         if (selectedCategories.size > 0) {
@@ -285,25 +373,16 @@ function setupFilters() {
             });
         }
         
-        renderArticles(filteredArticles, true);
+        // 显示/隐藏文章
+        allArticlesData.forEach(article => {
+            if (article.element) {
+                const isInFiltered = filteredArticles.some(a => a.id === article.id);
+                article.element.style.display = isInFiltered ? '' : 'none';
+            }
+        });
         
         // 检查是否需要显示"暂无相关内容"
         checkAndShowNoResults();
-    }
-    
-    function renderArticles(articles, hideOthers = false) {
-        if (hideOthers) {
-            // 隐藏不在列表中的文章
-            allArticles.forEach(article => {
-                const isInFiltered = articles.some(a => a.originalIndex === article.originalIndex);
-                article.element.style.display = isInFiltered ? '' : 'none';
-            });
-        } else {
-            // 重新排序显示
-            articles.forEach((article, index) => {
-                articlesContainer.appendChild(article.element);
-            });
-        }
     }
 }
 
@@ -385,10 +464,14 @@ function setupFontController() {
     const fontController = document.getElementById('font-controller');
     if (!fontController) return;
     
-    fontController.addEventListener('click', (e) => {
-        e.stopPropagation();
-        fontController.classList.toggle('active');
-    });
+    // 只在点击图标区域时展开/收起，不在按钮上触发
+    const iconButton = fontController.querySelector('.flex-shrink-0');
+    if (iconButton) {
+        iconButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            fontController.classList.toggle('active');
+        });
+    }
     
     document.addEventListener('click', (e) => {
         if (!fontController.contains(e.target)) {
@@ -433,17 +516,58 @@ function setupThemeToggle() {
     });
 }
 
+// ===== 动态生成类别筛选 =====
+function setupDynamicCategoryFilter() {
+    const dropdownPanel = document.querySelector('.dropdown-panel');
+    if (!dropdownPanel) return;
+    
+    // 从所有文章中提取唯一的 tag
+    const allTags = new Set();
+    allArticlesData.forEach(article => {
+        if (article.tag) {
+            allTags.add(article.tag);
+        }
+    });
+    
+    // 清空现有选项（保留结构）
+    const container = dropdownPanel.querySelector('div');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    // 动态生成类别选项
+    Array.from(allTags).sort().forEach(tag => {
+        const label = document.createElement('label');
+        label.className = 'flex items-center gap-3 cursor-pointer hover:translate-x-1 transition-transform';
+        label.innerHTML = `
+            <input type="checkbox" class="accent-current" data-category="${tag}">
+            <span>${tag}</span>
+        `;
+        container.appendChild(label);
+    });
+}
+
 // ===== 初始化所有功能 =====
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    // 先设置基础功能
     setupCursor();
     setupFontController();
     setupFontSizeControl();
+    setupThemeToggle();
+    
+    // 加载并渲染文章
+    await loadAllArticles();
+    renderArticles();
+    
+    // 设置动态类别筛选（在文章加载后）
+    setupDynamicCategoryFilter();
+    
+    // 设置其他功能（依赖于文章已加载）
     setupRevealAnimation();
     setupHoverCursor();
-    setupThemeToggle();
     setupSearch();
     setupFilters();
     setupDropdownClose();
     
-    console.log('Notes page initialized');
+    console.log('Notes page initialized with', allArticlesData.length, 'articles');
 });

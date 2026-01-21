@@ -43,8 +43,10 @@
         }
 
         #scalable-content {
-            font-size: calc(1rem * var(--content-scale));
-            transition: font-size 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            /* 使用 transform scale 来缩放整个内容区域，包括所有子元素 */
+            transform: scale(var(--content-scale));
+            transform-origin: top left;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         /* 列表项设计 */
@@ -262,25 +264,10 @@
                 类别
                 <span class="iconify" data-icon="lucide:plus" data-width="10"></span>
                 
-                <!-- Dropdown 面板 -->
+                <!-- Dropdown 面板（动态生成类别选项） -->
                 <div class="dropdown-panel p-4 shadow-2xl">
                     <div class="flex flex-col gap-4">
-                        <label class="flex items-center gap-3 cursor-pointer hover:translate-x-1 transition-transform">
-                            <input type="checkbox" class="accent-current">
-                            <span>#Spatial_Inquiry</span>
-                        </label>
-                        <label class="flex items-center gap-3 cursor-pointer hover:translate-x-1 transition-transform">
-                            <input type="checkbox" class="accent-current">
-                            <span>#Reflection</span>
-                        </label>
-                        <label class="flex items-center gap-3 cursor-pointer hover:translate-x-1 transition-transform">
-                            <input type="checkbox" class="accent-current">
-                            <span>#Code_Logic</span>
-                        </label>
-                        <label class="flex items-center gap-3 cursor-pointer hover:translate-x-1 transition-transform">
-                            <input type="checkbox" class="accent-current">
-                            <span>#Daily_Meditations</span>
-                        </label>
+                        <!-- 类别选项将由 JavaScript 动态生成 -->
                     </div>
                 </div>
             </div>
@@ -306,44 +293,8 @@
                 </p>
             </div>
             
-            <article class="note-card py-20 px-8 -mx-8 group cursor-pointer reveal" style="transition-delay: 0.1s;">
-                <div class="flex flex-col md:flex-row gap-12">
-                    <div class="md:w-1/4">
-                        <span class="font-mono text-[10px] opacity-20 tracking-[0.4em] uppercase block mb-2">Dec 2024</span>
-                        <span class="font-mono text-[9px] opacity-10 uppercase block">#Spatial_Inquiry</span>
-                    </div>
-                    <div class="flex-1">
-                        <h2 class="note-title text-4xl md:text-5xl font-serif text-neutral-900 dark:text-white leading-tight">伦敦街头看不见的脉搏</h2>
-                        <p class="mt-6 text-base md:text-lg text-neutral-500 dark:text-neutral-400 font-light leading-relaxed max-w-2xl">
-                            观察数据流如何模拟伦敦东区历史悠久的步行路径，这些细微的流动构成了城市的非物质肌理。我们往往只能看到建筑，却忽略了人流编织的无形网络。
-                        </p>
-                        <div class="mt-10 flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-[-10px] group-hover:translate-x-0">
-                            <span class="text-[10px] font-mono uppercase tracking-widest">View Full Entry</span>
-                            <div class="h-[1px] w-12 bg-current opacity-30"></div>
-                        </div>
-                    </div>
-                </div>
-            </article>
-
-            <article class="note-card py-20 px-8 -mx-8 group cursor-pointer reveal" style="transition-delay: 0.2s;">
-                <div class="flex flex-col md:flex-row gap-12">
-                    <div class="md:w-1/4">
-                        <span class="font-mono text-[10px] opacity-20 tracking-[0.4em] uppercase block mb-2">Nov 2024</span>
-                        <span class="font-mono text-[9px] opacity-10 uppercase block">#Reflection</span>
-                    </div>
-                    <div class="flex-1">
-                        <h2 class="note-title text-4xl md:text-5xl font-serif text-neutral-900 dark:text-white leading-tight">在清晨的咖啡中寻找几何</h2>
-                        <p class="mt-6 text-base md:text-lg text-neutral-500 dark:text-neutral-400 font-light leading-relaxed max-w-2xl">
-                            流体的波纹、光线的折射，日常的重复中其实藏着宇宙最基础的逻辑。每一个气泡的破裂都遵循着某种严密的数学模型。
-                        </p>
-                        <div class="mt-10 flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-[-10px] group-hover:translate-x-0">
-                            <span class="text-[10px] font-mono uppercase tracking-widest">View Full Entry</span>
-                            <div class="h-[1px] w-12 bg-current opacity-30"></div>
-                        </div>
-                    </div>
-                </div>
-            </article>
-
+            <!-- 文章列表将由 JavaScript 动态渲染 -->
+            
         </div>
 
         <footer class="mt-40 border-t border-neutral-900 dark:border-white pt-20 pb-32 reveal">
