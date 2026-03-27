@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN" class="scroll-smooth lang-cn">
+<html lang="zh-CN" class="scroll-smooth lang-cn dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -57,27 +57,419 @@
         }
         html:not(.lang-cn) .show-cn { display: none; }
         html.lang-cn .show-en { display: none; }
+        .abyss-layer {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .abyss-backdrop {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 20% 18%, rgba(36, 82, 255, 0.24), transparent 24%),
+                radial-gradient(circle at 78% 20%, rgba(181, 60, 255, 0.16), transparent 30%),
+                radial-gradient(circle at 62% 72%, rgba(14, 165, 233, 0.20), transparent 26%),
+                linear-gradient(145deg, #05070d 0%, #09101d 28%, #0a1124 55%, #05070c 100%);
+        }
+        html:not(.dark) .abyss-backdrop {
+            background:
+                radial-gradient(circle at 18% 18%, rgba(31, 70, 255, 0.12), transparent 26%),
+                radial-gradient(circle at 82% 18%, rgba(168, 85, 247, 0.10), transparent 30%),
+                radial-gradient(circle at 64% 78%, rgba(56, 189, 248, 0.12), transparent 26%),
+                linear-gradient(145deg, #f7f8fb 0%, #eef2ff 28%, #f9fbff 55%, #f3f4f6 100%);
+        }
+        .ocean-orb,
+        .tidal-wave,
+        .floating-fragment,
+        .drift-note {
+            position: absolute;
+            will-change: transform;
+        }
+        .ocean-orb {
+            border-radius: 9999px;
+            filter: blur(70px);
+            opacity: 0.72;
+            mix-blend-mode: screen;
+            animation: driftFloat 18s ease-in-out infinite;
+        }
+        .dark .ocean-orb {
+            mix-blend-mode: screen;
+        }
+        html:not(.dark) .ocean-orb {
+            mix-blend-mode: multiply;
+            opacity: 0.35;
+        }
+        .orb-a {
+            width: 34rem;
+            height: 34rem;
+            left: -10rem;
+            top: 18%;
+            background: radial-gradient(circle, rgba(31, 60, 255, 0.55) 0%, rgba(31, 60, 255, 0) 70%);
+            animation-delay: -2s;
+        }
+        .orb-b {
+            width: 26rem;
+            height: 26rem;
+            right: 4%;
+            top: 10%;
+            background: radial-gradient(circle, rgba(192, 38, 211, 0.38) 0%, rgba(192, 38, 211, 0) 72%);
+            animation-duration: 22s;
+        }
+        .orb-c {
+            width: 32rem;
+            height: 32rem;
+            right: -6rem;
+            bottom: -4rem;
+            background: radial-gradient(circle, rgba(34, 211, 238, 0.34) 0%, rgba(34, 211, 238, 0) 72%);
+            animation-duration: 24s;
+            animation-delay: -6s;
+        }
+        .sun-glow {
+            position: absolute;
+            width: 32rem;
+            height: 32rem;
+            top: -10rem;
+            right: 6%;
+            border-radius: 9999px;
+            background:
+                radial-gradient(circle at 42% 42%, rgba(255, 243, 210, 0.36) 0%, rgba(255, 224, 168, 0.20) 18%, rgba(255, 196, 104, 0.12) 32%, rgba(255, 196, 104, 0.03) 52%, rgba(255, 196, 104, 0) 76%);
+            filter: blur(42px);
+            opacity: 0.88;
+            mix-blend-mode: screen;
+            animation: warmPulse 18s ease-in-out infinite;
+        }
+        .sun-shaft {
+            position: absolute;
+            top: -8%;
+            right: 11%;
+            width: 24rem;
+            height: 38rem;
+            background:
+                linear-gradient(180deg, rgba(255, 240, 200, 0.26) 0%, rgba(255, 226, 168, 0.16) 16%, rgba(255, 214, 140, 0.08) 42%, rgba(255, 214, 140, 0.00) 82%);
+            clip-path: polygon(42% 0%, 100% 0%, 72% 100%, 8% 100%);
+            filter: blur(22px);
+            opacity: 0.34;
+            transform-origin: top center;
+            animation: shaftDrift 20s ease-in-out infinite;
+        }
+        .sun-shaft-soft {
+            position: absolute;
+            top: -6%;
+            right: 15%;
+            width: 12rem;
+            height: 30rem;
+            background: linear-gradient(180deg, rgba(255, 245, 220, 0.22), rgba(255, 230, 175, 0.08) 26%, rgba(255, 230, 175, 0) 88%);
+            filter: blur(30px);
+            opacity: 0.4;
+            transform: rotate(8deg);
+            transform-origin: top center;
+            animation: shaftDriftSoft 24s ease-in-out infinite;
+        }
+        .surface-haze {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 26%;
+            background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.015) 46%, rgba(255,255,255,0) 100%);
+            opacity: 0.65;
+            mix-blend-mode: screen;
+        }
+        html:not(.dark) .sun-glow {
+            opacity: 0.58;
+            mix-blend-mode: multiply;
+        }
+        html:not(.dark) .sun-shaft {
+            opacity: 0.18;
+        }
+        html:not(.dark) .sun-shaft-soft {
+            opacity: 0.16;
+        }
+        html:not(.dark) .surface-haze {
+            opacity: 0.24;
+            mix-blend-mode: multiply;
+        }
+        .caustic-layer {
+            position: absolute;
+            inset: 0;
+            opacity: 0.18;
+            mix-blend-mode: screen;
+            filter: blur(0.3px);
+        }
+        html:not(.dark) .caustic-layer {
+            opacity: 0.10;
+            mix-blend-mode: multiply;
+        }
+        .caustic-line {
+            position: absolute;
+            height: 2px;
+            border-radius: 9999px;
+            background: linear-gradient(90deg, rgba(255,255,255,0), rgba(185, 229, 255, 0.55), rgba(255,255,255,0));
+            box-shadow: 0 0 18px rgba(125, 211, 252, 0.18);
+            transform-origin: center;
+            animation: causticDrift 16s ease-in-out infinite;
+        }
+        html:not(.dark) .caustic-line {
+            background: linear-gradient(90deg, rgba(255,255,255,0), rgba(59, 130, 246, 0.18), rgba(255,255,255,0));
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.10);
+        }
+        .caustic-1 { width: 22rem; left: 10%; top: 17%; transform: rotate(-7deg); animation-delay: -2s; }
+        .caustic-2 { width: 16rem; left: 28%; top: 24%; transform: rotate(6deg); animation-duration: 12s; }
+        .caustic-3 { width: 28rem; right: 8%; top: 22%; transform: rotate(-10deg); animation-delay: -5s; }
+        .caustic-4 { width: 12rem; left: 56%; top: 40%; transform: rotate(8deg); animation-duration: 10s; }
+        .caustic-5 { width: 20rem; right: 16%; bottom: 20%; transform: rotate(-5deg); animation-duration: 15s; }
+        .caustic-6 { width: 15rem; left: 18%; bottom: 26%; transform: rotate(9deg); animation-delay: -4s; }
+        .tidal-wave {
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 9999px;
+            opacity: 0.28;
+            filter: blur(0.2px);
+        }
+        html:not(.dark) .tidal-wave {
+            border-color: rgba(15, 23, 42, 0.10);
+            opacity: 0.18;
+        }
+        .wave-a {
+            width: 48rem;
+            height: 22rem;
+            left: -10rem;
+            bottom: 12%;
+            transform: rotate(-12deg);
+            animation: tidalShift 26s ease-in-out infinite;
+        }
+        .wave-b {
+            width: 34rem;
+            height: 16rem;
+            right: 8%;
+            top: 18%;
+            transform: rotate(19deg);
+            animation: tidalShift 30s ease-in-out infinite reverse;
+        }
+        .wave-c {
+            width: 18rem;
+            height: 8rem;
+            left: 42%;
+            top: 46%;
+            transform: rotate(-18deg);
+            animation: tidalShift 16s ease-in-out infinite;
+        }
+        .fragment-field {
+            position: absolute;
+            inset: 0;
+        }
+        .floating-fragment {
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            border-radius: 18px;
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+            animation: fragmentBob 14s ease-in-out infinite;
+        }
+        html:not(.dark) .floating-fragment {
+            border-color: rgba(15, 23, 42, 0.12);
+            background: rgba(255, 255, 255, 0.34);
+        }
+        .fragment-a {
+            width: 10rem;
+            height: 2.8rem;
+            left: 12%;
+            top: 70%;
+            transform: rotate(-8deg);
+        }
+        .fragment-b {
+            width: 6rem;
+            height: 6rem;
+            right: 16%;
+            top: 30%;
+            transform: rotate(16deg);
+            animation-duration: 17s;
+        }
+        .fragment-c {
+            width: 12rem;
+            height: 3.2rem;
+            right: 8%;
+            bottom: 15%;
+            transform: rotate(-14deg);
+            animation-delay: -5s;
+        }
+        .fragment-d {
+            width: 4.6rem;
+            height: 4.6rem;
+            left: 52%;
+            top: 14%;
+            transform: rotate(11deg);
+            animation-duration: 19s;
+        }
+        .fragment-inner {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.52);
+        }
+        html:not(.dark) .fragment-inner {
+            color: rgba(15, 23, 42, 0.42);
+        }
+        .drift-note {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.26em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.22);
+            white-space: nowrap;
+            animation: driftFloat 24s ease-in-out infinite;
+        }
+        html:not(.dark) .drift-note {
+            color: rgba(15, 23, 42, 0.18);
+        }
+        .note-a { left: 5%; top: 22%; transform: rotate(-90deg); transform-origin: left top; }
+        .note-b { right: 4%; top: 26%; transform: rotate(90deg); transform-origin: right top; animation-delay: -7s; }
+        .note-c { left: 18%; bottom: 8%; animation-duration: 20s; }
+        .note-d { right: 12%; bottom: 12%; animation-duration: 18s; }
+        .note-e { left: 46%; top: 11%; animation-duration: 16s; }
+        .drift-spark {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.55);
+            box-shadow: 0 0 16px rgba(96, 165, 250, 0.7);
+            animation: sparkBlink 5s ease-in-out infinite;
+        }
+        html:not(.dark) .drift-spark {
+            background: rgba(37, 99, 235, 0.36);
+            box-shadow: 0 0 16px rgba(37, 99, 235, 0.18);
+        }
+        .spark-a { left: 28%; top: 24%; animation-delay: -1s; }
+        .spark-b { right: 18%; top: 42%; animation-delay: -3s; }
+        .spark-c { left: 62%; bottom: 24%; animation-delay: -2s; }
+        .spark-d { right: 32%; bottom: 10%; animation-delay: -4s; }
         .lab-card {
-            border: 1px solid rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(18px);
+            background: rgba(8, 12, 20, 0.52);
+            box-shadow: 0 16px 45px rgba(0, 0, 0, 0.18);
         }
         .dark .lab-card {
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
+        html:not(.dark) .lab-card {
+            border: 1px solid rgba(15, 23, 42, 0.10);
+            background: rgba(255, 255, 255, 0.72);
+            box-shadow: 0 16px 45px rgba(80, 98, 130, 0.10);
+        }
         .lab-card:hover {
             transform: translateY(-6px);
-            border-color: rgba(0, 0, 0, 0.18);
+            border-color: rgba(255, 255, 255, 0.18);
         }
         .dark .lab-card:hover {
             border-color: rgba(255, 255, 255, 0.18);
         }
+        html:not(.dark) .lab-card:hover {
+            border-color: rgba(37, 99, 235, 0.22);
+        }
+        @keyframes driftFloat {
+            0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+            50% { transform: translate3d(16px, -20px, 0) scale(1.04); }
+        }
+        @keyframes tidalShift {
+            0%, 100% { transform: translate3d(0, 0, 0) rotate(-12deg); }
+            50% { transform: translate3d(18px, -10px, 0) rotate(-9deg); }
+        }
+        .wave-b { animation-name: tidalShiftB; }
+        .wave-c { animation-name: tidalShiftC; }
+        @keyframes tidalShiftB {
+            0%, 100% { transform: translate3d(0, 0, 0) rotate(19deg); }
+            50% { transform: translate3d(-16px, 12px, 0) rotate(15deg); }
+        }
+        @keyframes tidalShiftC {
+            0%, 100% { transform: translate3d(0, 0, 0) rotate(-18deg); }
+            50% { transform: translate3d(10px, -8px, 0) rotate(-14deg); }
+        }
+        @keyframes fragmentBob {
+            0%, 100% { transform: translate3d(0, 0, 0) rotate(var(--rot, 0deg)); }
+            50% { transform: translate3d(12px, -12px, 0) rotate(calc(var(--rot, 0deg) + 3deg)); }
+        }
+        @keyframes sparkBlink {
+            0%, 100% { opacity: 0.15; transform: scale(0.7); }
+            50% { opacity: 0.95; transform: scale(1.2); }
+        }
+        @keyframes warmPulse {
+            0%, 100% { transform: scale(1) translate3d(0, 0, 0); opacity: 0.74; }
+            50% { transform: scale(1.06) translate3d(-12px, 10px, 0); opacity: 0.9; }
+        }
+        @keyframes shaftDrift {
+            0%, 100% { transform: rotate(8deg) translate3d(0, 0, 0); opacity: 0.22; }
+            50% { transform: rotate(5deg) translate3d(-10px, 14px, 0); opacity: 0.36; }
+        }
+        @keyframes shaftDriftSoft {
+            0%, 100% { transform: rotate(8deg) translate3d(0, 0, 0); opacity: 0.26; }
+            50% { transform: rotate(11deg) translate3d(8px, 10px, 0); opacity: 0.42; }
+        }
+        @keyframes causticDrift {
+            0%, 100% { transform: translate3d(0, 0, 0) rotate(var(--rot, 0deg)) scaleX(1); opacity: 0.18; }
+            50% { transform: translate3d(14px, -8px, 0) rotate(calc(var(--rot, 0deg) + 2deg)) scaleX(1.08); opacity: 0.34; }
+        }
         @media (max-width: 768px) {
             .cursor-dot { display: none !important; }
+            .drift-note,
+            .fragment-c,
+            .fragment-d,
+            .wave-b { display: none; }
+            .sun-shaft,
+            .sun-shaft-soft,
+            .caustic-4,
+            .caustic-5,
+            .caustic-6 { display: none; }
         }
     </style>
 </head>
-<body class="bg-[#fcfcfc] dark:bg-[#050505] text-neutral-900 dark:text-neutral-100 font-sans antialiased overflow-x-hidden cursor-none transition-colors duration-500">
+<body class="bg-[#f4f7ff] dark:bg-[#05060a] text-neutral-900 dark:text-neutral-100 font-sans antialiased overflow-x-hidden cursor-none transition-colors duration-500">
     <div id="cursor" class="cursor-dot hidden md:block"></div>
+    <div class="abyss-layer" id="abyss-layer">
+        <div class="abyss-backdrop drift-layer" data-depth="0.02"></div>
+        <div class="surface-haze drift-layer" data-depth="0.01"></div>
+        <div class="sun-glow drift-layer" data-depth="0.03"></div>
+        <div class="sun-shaft drift-layer" data-depth="0.02"></div>
+        <div class="sun-shaft-soft drift-layer" data-depth="0.015"></div>
+        <div class="ocean-orb orb-a drift-layer" data-depth="0.08"></div>
+        <div class="ocean-orb orb-b drift-layer" data-depth="0.06"></div>
+        <div class="ocean-orb orb-c drift-layer" data-depth="0.04"></div>
+        <div class="tidal-wave wave-a drift-layer" data-depth="0.03"></div>
+        <div class="tidal-wave wave-b drift-layer" data-depth="0.05"></div>
+        <div class="tidal-wave wave-c drift-layer" data-depth="0.07"></div>
+        <div class="caustic-layer drift-layer" data-depth="0.025">
+            <div class="caustic-line caustic-1" style="--rot:-7deg;"></div>
+            <div class="caustic-line caustic-2" style="--rot:6deg;"></div>
+            <div class="caustic-line caustic-3" style="--rot:-10deg;"></div>
+            <div class="caustic-line caustic-4" style="--rot:8deg;"></div>
+            <div class="caustic-line caustic-5" style="--rot:-5deg;"></div>
+            <div class="caustic-line caustic-6" style="--rot:9deg;"></div>
+        </div>
+        <div class="fragment-field">
+            <div class="floating-fragment fragment-a drift-layer" data-depth="0.09" style="--rot:-8deg;"><div class="fragment-inner">dream cache</div></div>
+            <div class="floating-fragment fragment-b drift-layer" data-depth="0.05" style="--rot:16deg;"><div class="fragment-inner">03:17</div></div>
+            <div class="floating-fragment fragment-c drift-layer" data-depth="0.08" style="--rot:-14deg;"><div class="fragment-inner">blue noise</div></div>
+            <div class="floating-fragment fragment-d drift-layer" data-depth="0.06" style="--rot:11deg;"><div class="fragment-inner">drift</div></div>
+        </div>
+        <div class="drift-note note-a drift-layer" data-depth="0.11">tide memory / room tone / 7788</div>
+        <div class="drift-note note-b drift-layer" data-depth="0.07">signal weak / archive not found</div>
+        <div class="drift-note note-c drift-layer" data-depth="0.04">small worlds / strange shelves / sea state</div>
+        <div class="drift-note note-d drift-layer" data-depth="0.09">fragment no.07 / private blue / unfinished</div>
+        <div class="drift-note note-e drift-layer" data-depth="0.06">7788 / tide shelf / soft disorder</div>
+        <div class="drift-spark spark-a drift-layer" data-depth="0.10"></div>
+        <div class="drift-spark spark-b drift-layer" data-depth="0.08"></div>
+        <div class="drift-spark spark-c drift-layer" data-depth="0.06"></div>
+        <div class="drift-spark spark-d drift-layer" data-depth="0.09"></div>
+    </div>
     <div class="fixed inset-0 pointer-events-none z-50 mix-blend-multiply dark:mix-blend-overlay opacity-5 bg-grain"></div>
 
     <nav class="fixed top-0 left-0 w-full px-6 py-6 md:px-12 md:py-6 flex justify-between items-center z-40 mix-blend-difference text-white">
@@ -103,22 +495,25 @@
     </nav>
 
     <main class="relative z-10 pt-24 sm:pt-28 md:pt-36 px-6 sm:px-12 md:px-24 pb-28 max-w-[1400px] mx-auto">
-        <header class="mb-12 md:mb-14 reveal active">
-            <div class="flex items-center gap-4 mb-5 opacity-35">
+        <header class="mb-14 md:mb-16 reveal active">
+            <!-- <div class="flex items-center gap-4 mb-5 opacity-35">
                 <div class="h-[1px] w-8 bg-current"></div>
                 <span class="font-mono text-[8px] md:text-[9px] tracking-[0.4em] uppercase">Small Experiments / Utility Shelf</span>
-            </div>
-            <h1 class="text-5xl sm:text-6xl md:text-[6.2rem] font-serif italic font-semibold leading-[0.92] tracking-tight mb-4">
-                7788
-            </h1>
-            <div class="max-w-2xl text-sm md:text-base leading-relaxed text-neutral-500 dark:text-neutral-400 space-y-4">
-                <p class="show-cn">这里放我一些七七八八的小开发、小实验和暂时还不想单独立项的工具。它们不一定宏大，但都挺有性格。</p>
+            </div> -->
+            <div class="max-w-2xl text-sm md:text-base leading-relaxed text-neutral-500 dark:text-neutral-300 space-y-4">
+                <p class="show-cn">我不知道如何形容生命的荒诞，深海和真空并无差别，玫瑰好像血液和火焰。于是，在夜里变成了蛇。
+                    我想要星空的浩瀚，想要火山的磅礴，想要成为烧死的草，成为随意的风。
+                    下潜到海底找寻我的亚特兰蒂斯，或是爬上天空打开虚假的门窗。
+                    我忘不了蓝色的心脏，我忘不了崩坏的废墟；我忘不了我的梦境，我无法直视我的遗忘。
+                    若有一天我的眼睛不再看见，我的嘴巴不再发声，那我就去做烧死的草和随意的风。
+                    直到我再次出生。
+                </p>
                 <p class="show-en">A shelf for the smaller builds, side tools, and half-serious experiments that do not need a standalone section yet, but deserve a clean place to live.</p>
             </div>
         </header>
 
         <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 reveal">
-            <a href="../keycounter/keycounter.html" class="lab-card rounded-[28px] p-7 bg-gradient-to-br from-fuchsia-500 via-violet-600 to-blue-600 text-white shadow-[0_16px_60px_rgba(99,102,241,0.26)] block">
+            <a href="../keycounter/keycounter.html" class="lab-card rounded-[28px] p-7 bg-gradient-to-br from-fuchsia-500 via-violet-600 to-blue-600 text-white shadow-[0_16px_60px_rgba(99,102,241,0.30)] block">
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <div class="iconify mb-4 opacity-80" data-icon="lucide:activity" data-width="20"></div>
@@ -138,7 +533,7 @@
                 </div>
             </a>
 
-            <div class="lab-card rounded-[28px] p-7 bg-white dark:bg-neutral-900">
+            <div class="lab-card rounded-[28px] p-7 bg-white/70 dark:bg-neutral-900/70">
                 <div class="iconify text-emerald-500 mb-4" data-icon="lucide:flask-conical" data-width="20"></div>
                 <div class="font-serif italic text-3xl mb-2">
                     <span class="show-en">Micro Tools</span>
@@ -150,7 +545,7 @@
                 </p>
             </div>
 
-            <div class="lab-card rounded-[28px] p-7 bg-black text-white dark:bg-neutral-950">
+            <div class="lab-card rounded-[28px] p-7 bg-black/80 text-white dark:bg-neutral-950/80">
                 <div class="iconify text-cyan-400 mb-4" data-icon="lucide:binary" data-width="20"></div>
                 <div class="font-serif italic text-3xl mb-2">
                     <span class="show-en">Coming Next</span>
@@ -165,10 +560,6 @@
     </main>
 
     <footer class="relative z-10 px-6 sm:px-12 md:px-24 py-16 border-t border-neutral-200 dark:border-white/5 flex flex-col md:flex-row justify-between items-start gap-10">
-        <div>
-            <div class="font-serif italic text-2xl mb-3">7788.</div>
-            <p class="text-[10px] font-mono uppercase tracking-widest text-neutral-400">small builds / fragments / utilities</p>
-        </div>
         <div class="flex gap-8 text-xs font-mono uppercase tracking-widest text-neutral-400">
             <a href="../keycounter/keycounter.html" class="hover-trigger hover:text-neutral-900 dark:hover:text-white transition-colors">Viki</a>
             <a href="../../index.html" class="hover-trigger hover:text-neutral-900 dark:hover:text-white transition-colors">Home</a>
@@ -178,12 +569,24 @@
     <script>
         const html = document.documentElement;
         const cursor = document.getElementById('cursor');
+        const driftLayers = document.querySelectorAll('.drift-layer');
         document.getElementById('theme-toggle').addEventListener('click', () => html.classList.toggle('dark'));
         document.getElementById('lang-toggle').addEventListener('click', () => html.classList.toggle('lang-cn'));
         document.addEventListener('mousemove', (e) => {
             if (!cursor) return;
             cursor.style.left = e.clientX + 'px';
             cursor.style.top = e.clientY + 'px';
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+            const dx = (e.clientX - centerX) / centerX;
+            const dy = (e.clientY - centerY) / centerY;
+            driftLayers.forEach((layer) => {
+                const depth = parseFloat(layer.dataset.depth || '0');
+                const x = dx * depth * 38;
+                const y = dy * depth * 28;
+                layer.style.transform += '';
+                layer.style.translate = `${x}px ${y}px`;
+            });
         });
         document.querySelectorAll('.hover-trigger, a, button').forEach((el) => {
             el.addEventListener('mouseenter', () => { if (cursor) cursor.style.transform = 'translate(-50%, -50%) scale(4)'; });
