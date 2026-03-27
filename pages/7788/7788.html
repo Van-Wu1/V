@@ -1,12 +1,200 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="zh-CN" class="scroll-smooth lang-cn">
 <head>
-    7788head
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7788 | Involvan'Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=Inter:wght@200;300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        neutral: {
+                            850: '#1f1f1f',
+                            950: '#0a0a0a'
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Cormorant Garamond', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        ::-webkit-scrollbar { width: 0; background: transparent; }
+        .bg-grain {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
+        }
+        .cursor-dot {
+            width: 10px;
+            height: 10px;
+            background-color: white;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+            transition: transform 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            transform: translate(-50%, -50%);
+        }
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        html:not(.lang-cn) .show-cn { display: none; }
+        html.lang-cn .show-en { display: none; }
+        .lab-card {
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .dark .lab-card {
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .lab-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(0, 0, 0, 0.18);
+        }
+        .dark .lab-card:hover {
+            border-color: rgba(255, 255, 255, 0.18);
+        }
+        @media (max-width: 768px) {
+            .cursor-dot { display: none !important; }
+        }
+    </style>
 </head>
-<body>
-    7788body
+<body class="bg-[#fcfcfc] dark:bg-[#050505] text-neutral-900 dark:text-neutral-100 font-sans antialiased overflow-x-hidden cursor-none transition-colors duration-500">
+    <div id="cursor" class="cursor-dot hidden md:block"></div>
+    <div class="fixed inset-0 pointer-events-none z-50 mix-blend-multiply dark:mix-blend-overlay opacity-5 bg-grain"></div>
+
+    <nav class="fixed top-0 left-0 w-full px-6 py-6 md:px-12 md:py-6 flex justify-between items-center z-40 mix-blend-difference text-white">
+        <div class="flex items-center gap-4 md:gap-8">
+            <a href="../../index.html" class="hover-trigger flex items-center gap-2 group">
+                <span class="iconify opacity-40 group-hover:opacity-100 transition-opacity" data-icon="lucide:arrow-left" data-width="12"></span>
+                <span class="text-[9px] md:text-[10px] tracking-[0.2em] uppercase font-light opacity-40 group-hover:opacity-100 transition-opacity">
+                    <span class="show-en">Back</span><span class="show-cn">返回</span>
+                </span>
+            </a>
+            <div class="h-[10px] w-[1px] bg-white/20"></div>
+            <div class="hover-trigger text-[10px] md:text-[11px] tracking-[0.3em] uppercase font-light">Vanora <span class="opacity-40">/</span> 7788</div>
+        </div>
+        <div class="flex gap-4 md:gap-6">
+            <button id="lang-toggle" class="hover-trigger text-[9px] md:text-[10px] font-mono opacity-60 hover:opacity-100">
+                <span class="show-en">CN</span><span class="show-cn">EN</span>
+            </button>
+            <button id="theme-toggle" class="hover-trigger opacity-60 hover:opacity-100">
+                <span class="iconify dark:hidden" data-icon="lucide:moon" data-width="14"></span>
+                <span class="iconify hidden dark:block" data-icon="lucide:sun" data-width="14"></span>
+            </button>
+        </div>
+    </nav>
+
+    <main class="relative z-10 pt-24 sm:pt-28 md:pt-36 px-6 sm:px-12 md:px-24 pb-28 max-w-[1400px] mx-auto">
+        <header class="mb-12 md:mb-14 reveal active">
+            <div class="flex items-center gap-4 mb-5 opacity-35">
+                <div class="h-[1px] w-8 bg-current"></div>
+                <span class="font-mono text-[8px] md:text-[9px] tracking-[0.4em] uppercase">Small Experiments / Utility Shelf</span>
+            </div>
+            <h1 class="text-5xl sm:text-6xl md:text-[6.2rem] font-serif italic font-semibold leading-[0.92] tracking-tight mb-4">
+                7788
+            </h1>
+            <div class="max-w-2xl text-sm md:text-base leading-relaxed text-neutral-500 dark:text-neutral-400 space-y-4">
+                <p class="show-cn">这里放我一些七七八八的小开发、小实验和暂时还不想单独立项的工具。它们不一定宏大，但都挺有性格。</p>
+                <p class="show-en">A shelf for the smaller builds, side tools, and half-serious experiments that do not need a standalone section yet, but deserve a clean place to live.</p>
+            </div>
+        </header>
+
+        <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 reveal">
+            <a href="../keycounter/keycounter.html" class="lab-card rounded-[28px] p-7 bg-gradient-to-br from-fuchsia-500 via-violet-600 to-blue-600 text-white shadow-[0_16px_60px_rgba(99,102,241,0.26)] block">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <div class="iconify mb-4 opacity-80" data-icon="lucide:activity" data-width="20"></div>
+                        <div class="font-serif italic text-4xl mb-2">Viki</div>
+                        <div class="font-mono text-[10px] uppercase tracking-[0.24em] opacity-70">0.9.0-beta.1</div>
+                    </div>
+                    <span class="rounded-full bg-white/15 px-3 py-1 text-[10px] font-mono uppercase tracking-[0.2em]">Desktop</span>
+                </div>
+                <p class="mt-8 text-sm leading-relaxed text-white/80">
+                    <span class="show-cn">记录键盘和鼠标的日常使用节奏，把热力图、Top 键位、鼠标明细和健康提醒放在一个轻量桌面工具里。</span>
+                    <span class="show-en">Turns keyboard and mouse activity into a lighter desktop utility with heatmaps, top keys, mouse detail charts, and health reminders.</span>
+                </p>
+                <div class="mt-8 flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-white/75">
+                    <span class="h-[1px] w-8 bg-white/40"></span>
+                    <span class="show-en">Open detail</span>
+                    <span class="show-cn">查看详情</span>
+                </div>
+            </a>
+
+            <div class="lab-card rounded-[28px] p-7 bg-white dark:bg-neutral-900">
+                <div class="iconify text-emerald-500 mb-4" data-icon="lucide:flask-conical" data-width="20"></div>
+                <div class="font-serif italic text-3xl mb-2">
+                    <span class="show-en">Micro Tools</span>
+                    <span class="show-cn">微型工具箱</span>
+                </div>
+                <p class="text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
+                    <span class="show-cn">准备放一些更轻的小东西，比如输入实验、快捷脚本、界面练习之类的短平快项目。</span>
+                    <span class="show-en">A placeholder for tiny tools, interface sketches, and quick experiments that are useful but do not need a large narrative page.</span>
+                </p>
+            </div>
+
+            <div class="lab-card rounded-[28px] p-7 bg-black text-white dark:bg-neutral-950">
+                <div class="iconify text-cyan-400 mb-4" data-icon="lucide:binary" data-width="20"></div>
+                <div class="font-serif italic text-3xl mb-2">
+                    <span class="show-en">Coming Next</span>
+                    <span class="show-cn">下一格待填</span>
+                </div>
+                <p class="text-sm leading-relaxed text-white/70">
+                    <span class="show-cn">这个区域以后可以继续挂你的其他小开发，不用每个都单独开一个正式栏目。</span>
+                    <span class="show-en">This slot is intentionally open, so future side projects can live here without needing a full standalone section.</span>
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="relative z-10 px-6 sm:px-12 md:px-24 py-16 border-t border-neutral-200 dark:border-white/5 flex flex-col md:flex-row justify-between items-start gap-10">
+        <div>
+            <div class="font-serif italic text-2xl mb-3">7788.</div>
+            <p class="text-[10px] font-mono uppercase tracking-widest text-neutral-400">small builds / fragments / utilities</p>
+        </div>
+        <div class="flex gap-8 text-xs font-mono uppercase tracking-widest text-neutral-400">
+            <a href="../keycounter/keycounter.html" class="hover-trigger hover:text-neutral-900 dark:hover:text-white transition-colors">Viki</a>
+            <a href="../../index.html" class="hover-trigger hover:text-neutral-900 dark:hover:text-white transition-colors">Home</a>
+        </div>
+    </footer>
+
+    <script>
+        const html = document.documentElement;
+        const cursor = document.getElementById('cursor');
+        document.getElementById('theme-toggle').addEventListener('click', () => html.classList.toggle('dark'));
+        document.getElementById('lang-toggle').addEventListener('click', () => html.classList.toggle('lang-cn'));
+        document.addEventListener('mousemove', (e) => {
+            if (!cursor) return;
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+        document.querySelectorAll('.hover-trigger, a, button').forEach((el) => {
+            el.addEventListener('mouseenter', () => { if (cursor) cursor.style.transform = 'translate(-50%, -50%) scale(4)'; });
+            el.addEventListener('mouseleave', () => { if (cursor) cursor.style.transform = 'translate(-50%, -50%) scale(1)'; });
+        });
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) entry.target.classList.add('active');
+            });
+        }, { threshold: 0.12 });
+        document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+    </script>
 </body>
-<footer>
-    7788footer
-</footer>
 </html>

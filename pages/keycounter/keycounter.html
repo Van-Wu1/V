@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth lang-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viki | Involvan'Studio</title>
+    <meta name="description" content="Viki by Vanora. A desktop activity tracker focused on healthier keyboard and mouse habits.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=Inter:wght@200;300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        neutral: {
+                            850: '#1f1f1f',
+                            950: '#0a0a0a'
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Cormorant Garamond', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        ::-webkit-scrollbar { width: 0; background: transparent; }
+        .bg-grain {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
+        }
+        .cursor-dot {
+            width: 10px;
+            height: 10px;
+            background-color: white;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+            transition: transform 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            transform: translate(-50%, -50%);
+        }
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .panel-card {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(0, 0, 0, 0.07);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .dark .panel-card {
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .panel-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(0, 0, 0, 0.18);
+        }
+        .dark .panel-card:hover {
+            border-color: rgba(255, 255, 255, 0.18);
+        }
+        html:not(.lang-cn) .show-cn { display: none; }
+        html.lang-cn .show-en { display: none; }
+        .download-disabled {
+            opacity: 0.45;
+            pointer-events: none;
+        }
+        .cta-button {
+            transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
+        }
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 18px 40px rgba(99, 102, 241, 0.24);
+        }
+        @media (max-width: 768px) {
+            .cursor-dot { display: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-[#fcfcfc] dark:bg-[#050505] text-neutral-900 dark:text-neutral-100 font-sans antialiased overflow-x-hidden cursor-none transition-colors duration-500">
+    <div id="cursor" class="cursor-dot hidden md:block"></div>
+    <div class="fixed inset-0 pointer-events-none z-50 mix-blend-multiply dark:mix-blend-overlay opacity-5 bg-grain"></div>
+    <div class="fixed inset-0 pointer-events-none z-0 opacity-10 dark:opacity-20 font-mono text-[7px] uppercase tracking-[0.3em]">
+        <div class="absolute top-1/2 left-4 md:left-6 -translate-y-1/2 -rotate-90 origin-left">Health_Tracking_Interface</div>
+        <div class="absolute top-1/2 right-4 md:right-6 -translate-y-1/2 rotate-90 origin-right">Release_Channel_Beta</div>
+    </div>
+
+    <nav class="fixed top-0 left-0 w-full px-6 py-6 md:px-12 md:py-6 flex justify-between items-center z-40 mix-blend-difference text-white">
+        <div class="flex items-center gap-4 md:gap-8">
+            <a href="../../index.html" class="hover-trigger flex items-center gap-2 group">
+                <span class="iconify opacity-40 group-hover:opacity-100 transition-opacity" data-icon="lucide:arrow-left" data-width="12"></span>
+                <span class="text-[9px] md:text-[10px] tracking-[0.2em] uppercase font-light opacity-40 group-hover:opacity-100 transition-opacity">
+                    <span class="show-en">Back</span><span class="show-cn">返回</span>
+                </span>
+            </a>
+            <div class="h-[10px] w-[1px] bg-white/20"></div>
+            <div class="hover-trigger text-[10px] md:text-[11px] tracking-[0.3em] uppercase font-light">Vanora <span class="opacity-40">/</span> Viki</div>
+        </div>
+        <div class="flex items-center gap-6 md:gap-8">
+            <div class="hidden sm:flex gap-6 md:gap-8 text-[9px] tracking-[0.2em] uppercase font-light">
+                <a href="#download" class="hover-trigger opacity-50 hover:opacity-100 transition-opacity">
+                    <span class="show-en">Download</span><span class="show-cn">下载</span>
+                </a>
+                <a href="#notes" class="hover-trigger opacity-50 hover:opacity-100 transition-opacity">
+                    <span class="show-en">Notes</span><span class="show-cn">更新</span>
+                </a>
+            </div>
+            <div class="flex gap-4 md:gap-6">
+                <button id="lang-toggle" class="hover-trigger text-[9px] md:text-[10px] font-mono opacity-60 hover:opacity-100">
+                    <span class="show-en">CN</span><span class="show-cn">EN</span>
+                </button>
+                <button id="theme-toggle" class="hover-trigger opacity-60 hover:opacity-100">
+                    <span class="iconify dark:hidden" data-icon="lucide:moon" data-width="14"></span>
+                    <span class="iconify hidden dark:block" data-icon="lucide:sun" data-width="14"></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="relative z-10 pt-24 sm:pt-28 md:pt-36 px-6 sm:px-12 md:px-24 pb-32 max-w-[1400px] mx-auto">
+        <header class="mb-14 md:mb-16 reveal active">
+            <div class="flex items-center gap-4 mb-4 opacity-30">
+                <div class="h-[1px] w-8 bg-current"></div>
+                <span class="font-mono text-[8px] md:text-[9px] tracking-[0.4em] uppercase">Desktop Utility / Download Page</span>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-8 md:gap-10 items-stretch">
+                <div>
+                    <h1 class="text-5xl sm:text-6xl md:text-[6rem] font-serif italic font-semibold mb-5 md:mb-6 leading-[0.9] tracking-tight">
+                        Viki
+                    </h1>
+                    <div class="text-neutral-500 dark:text-neutral-400 font-light leading-relaxed text-sm md:text-base max-w-2xl space-y-4">
+                        <p class="show-cn">
+                            一款把 <span class="text-neutral-900 dark:text-white font-medium">键盘鼠标行为记录</span>、可视化统计和健康提醒放在一起的桌面工具。
+                            它更像一个轻量的输入观察器，而不是一个打扰你的效率软件。
+                        </p>
+                        <p class="show-en">
+                            A desktop utility that combines <span class="text-neutral-900 dark:text-white font-medium">keyboard and mouse habit tracking</span>, visual analytics, and health reminders in one calmer workflow.
+                        </p>
+                    </div>
+
+                    <div class="mt-7 flex flex-wrap gap-3 text-[10px] font-mono uppercase tracking-[0.25em] text-neutral-400">
+                        <span class="border border-neutral-200 dark:border-white/10 px-3 py-2">Windows 10 / 11</span>
+                        <span class="border border-neutral-200 dark:border-white/10 px-3 py-2">Dashboard + Widget</span>
+                        <span class="border border-neutral-200 dark:border-white/10 px-3 py-2" id="channel-pill">Beta</span>
+                    </div>
+
+                    <div id="download" class="mt-8 flex flex-wrap gap-4">
+                        <a id="hero-download-official" href="#" target="_blank" rel="noopener noreferrer" class="cta-button rounded-full bg-gradient-to-r from-fuchsia-500 via-violet-600 to-blue-600 px-6 py-3 text-sm font-medium text-white">
+                            <span class="show-en">Official Download</span><span class="show-cn">官方下载</span>
+                        </a>
+                        <a id="hero-download-github" href="https://github.com/Van-Wu1/Viki-YourKeyCounter" target="_blank" rel="noopener noreferrer" class="cta-button rounded-full border border-neutral-300 dark:border-white/15 px-6 py-3 text-sm font-medium">
+                            GitHub
+                        </a>
+                    </div>
+                </div>
+
+                <div class="rounded-[30px] p-8 md:p-9 bg-gradient-to-br from-fuchsia-500 via-violet-600 to-blue-600 text-white shadow-[0_24px_80px_rgba(99,102,241,0.28)]">
+                    <div class="font-mono text-[10px] tracking-[0.3em] uppercase text-white/70 mb-5">
+                        <span class="show-en">Current Release</span><span class="show-cn">当前版本</span>
+                    </div>
+                    <div class="space-y-5">
+                        <div>
+                            <div class="text-4xl md:text-5xl font-serif italic" id="current-version">0.9.0-beta.1</div>
+                            <div class="mt-2 text-xs text-white/70 font-mono uppercase tracking-[0.2em]" id="published-at">2026-03-16</div>
+                        </div>
+                        <p class="text-sm leading-relaxed text-white/80" id="tagline-cn">
+                            记录键盘与鼠标的日常使用节奏，让健康提醒变得更自然。
+                        </p>
+                        <p class="hidden text-sm leading-relaxed text-white/80" id="tagline-en">
+                            Track keyboard and mouse habits with a gentler layer of health-aware reminders.
+                        </p>
+                        <div class="grid grid-cols-3 gap-3 pt-2 text-center">
+                            <div class="rounded-2xl bg-white/10 px-3 py-4">
+                                <div class="text-lg font-serif italic">Top 20</div>
+                                <div class="mt-1 text-[10px] font-mono uppercase tracking-[0.2em] text-white/60">keys</div>
+                            </div>
+                            <div class="rounded-2xl bg-white/10 px-3 py-4">
+                                <div class="text-lg font-serif italic">3</div>
+                                <div class="mt-1 text-[10px] font-mono uppercase tracking-[0.2em] text-white/60">reminders</div>
+                            </div>
+                            <div class="rounded-2xl bg-white/10 px-3 py-4">
+                                <div class="text-lg font-serif italic">ZH/EN</div>
+                                <div class="mt-1 text-[10px] font-mono uppercase tracking-[0.2em] text-white/60">ui</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <section class="mb-14 md:mb-16 reveal">
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                <div class="panel-card rounded-[26px] p-6 bg-white dark:bg-neutral-900">
+                    <div class="iconify text-fuchsia-500 mb-4" data-icon="lucide:layout-dashboard" data-width="20"></div>
+                    <h2 class="font-serif italic text-2xl mb-3"><span class="show-en">Dashboard</span><span class="show-cn">仪表盘</span></h2>
+                    <p class="text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
+                        <span class="show-cn">热力图、键位排行、鼠标明细与趋势图集中在一个面板里。</span>
+                        <span class="show-en">Heatmap, key ranking, mouse detail, and trend views in one place.</span>
+                    </p>
+                </div>
+                <div class="panel-card rounded-[26px] p-6 bg-white dark:bg-neutral-900">
+                    <div class="iconify text-violet-500 mb-4" data-icon="lucide:panel-top-open" data-width="20"></div>
+                    <h2 class="font-serif italic text-2xl mb-3"><span class="show-en">Widget</span><span class="show-cn">悬浮框</span></h2>
+                    <p class="text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
+                        <span class="show-cn">桌面常驻显示今日 Keys / Mouse，并支持快速右键操作。</span>
+                        <span class="show-en">A floating desktop widget for live Keys / Mouse tracking.</span>
+                    </p>
+                </div>
+                <div class="panel-card rounded-[26px] p-6 bg-white dark:bg-neutral-900">
+                    <div class="iconify text-cyan-500 mb-4" data-icon="lucide:heart-pulse" data-width="20"></div>
+                    <h2 class="font-serif italic text-2xl mb-3"><span class="show-en">Health</span><span class="show-cn">健康提醒</span></h2>
+                    <p class="text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
+                        <span class="show-cn">久坐、腱鞘炎、喝水三类提醒，尽量轻量，不强打断。</span>
+                        <span class="show-en">Sitting, tenosynovitis, and water reminders without heavy interruption.</span>
+                    </p>
+                </div>
+                <div class="panel-card rounded-[26px] p-6 bg-white dark:bg-neutral-900">
+                    <div class="iconify text-emerald-500 mb-4" data-icon="lucide:languages" data-width="20"></div>
+                    <h2 class="font-serif italic text-2xl mb-3"><span class="show-en">Language</span><span class="show-cn">双语</span></h2>
+                    <p class="text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
+                        <span class="show-cn">界面、托盘菜单与悬浮框菜单都在逐步统一中英文体验。</span>
+                        <span class="show-en">The app UI, tray, and widget menu are being aligned in Chinese and English.</span>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="notes" class="mb-14 md:mb-16 reveal">
+            <div class="flex items-center gap-4 mb-6 opacity-40">
+                <div class="h-[1px] w-8 bg-current"></div>
+                <span class="font-mono text-[8px] md:text-[9px] tracking-[0.4em] uppercase">Release Notes</span>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-4">
+                <div class="panel-card rounded-[26px] p-6 md:p-7 bg-white dark:bg-neutral-900">
+                    <ul id="release-notes" class="space-y-3 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
+                        <li>Loading...</li>
+                    </ul>
+                </div>
+                <div class="panel-card rounded-[26px] p-6 md:p-7 bg-white dark:bg-neutral-900">
+                    <div class="space-y-4 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
+                        <p class="show-cn">
+                            当前还是 Beta 阶段，软件内更新稍后会接到这个页面与元数据源上。现在先把下载入口和版本说明集中在这里。
+                        </p>
+                        <p class="show-en">
+                            The app is still in beta. This page is intended to become the public source of truth for downloads, release notes, and the next in-app update workflow.
+                        </p>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                            <div>
+                                <div class="text-neutral-900 dark:text-white font-medium mb-1"><span class="show-en">Status</span><span class="show-cn">状态</span></div>
+                                <div class="font-mono text-xs uppercase tracking-[0.2em]">beta / active</div>
+                            </div>
+                            <div>
+                                <div class="text-neutral-900 dark:text-white font-medium mb-1"><span class="show-en">Platform</span><span class="show-cn">平台</span></div>
+                                <div class="font-mono text-xs uppercase tracking-[0.2em]">windows desktop</div>
+                            </div>
+                            <div>
+                                <div class="text-neutral-900 dark:text-white font-medium mb-1"><span class="show-en">Update Mode</span><span class="show-cn">更新模式</span></div>
+                                <div class="font-mono text-xs uppercase tracking-[0.2em]">
+                                    <span class="show-en">manual for now</span><span class="show-cn">当前为手动更新</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="download" class="reveal">
+            <div class="flex items-center gap-4 mb-8 opacity-40">
+                <div class="h-[1px] w-8 bg-current"></div>
+                <span class="font-mono text-[8px] md:text-[9px] tracking-[0.4em] uppercase">Download Channels</span>
+            </div>
+            <div class="grid grid-cols-1 xl:grid-cols-[1fr_0.8fr] gap-8">
+                <div class="panel-card rounded-[26px] p-6 md:p-7 bg-white dark:bg-neutral-900">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="download-grid">
+                        <a id="download-official" class="group block rounded-[22px] border border-fuchsia-200/70 dark:border-fuchsia-500/20 bg-gradient-to-br from-fuchsia-500/10 via-violet-500/10 to-blue-500/10 p-5 transition-colors hover:border-fuchsia-500 dark:hover:border-fuchsia-400" href="#" target="_blank" rel="noopener noreferrer">
+                            <div class="font-mono text-[9px] tracking-[0.25em] uppercase text-neutral-400 mb-2">Official</div>
+                            <div class="font-serif italic text-2xl mb-2"><span class="show-en">Official Site</span><span class="show-cn">官方网站</span></div>
+                            <div class="text-sm text-neutral-500 dark:text-neutral-400"><span class="show-en">Primary recommended channel.</span><span class="show-cn">优先推荐的下载渠道。</span></div>
+                        </a>
+                        <a id="download-github" class="group block rounded-[22px] border border-cyan-200/70 dark:border-cyan-500/20 bg-gradient-to-br from-cyan-500/10 to-sky-500/10 p-5 transition-colors hover:border-cyan-500 dark:hover:border-cyan-400" href="#" target="_blank" rel="noopener noreferrer">
+                            <div class="font-mono text-[9px] tracking-[0.25em] uppercase text-neutral-400 mb-2">GitHub</div>
+                            <div class="font-serif italic text-2xl mb-2">Source</div>
+                            <div class="text-sm text-neutral-500 dark:text-neutral-400"><span class="show-en">Repository and release mirror.</span><span class="show-cn">源码仓库与备用镜像。</span></div>
+                        </a>
+                        <a id="download-baidu" class="group block rounded-[22px] border border-emerald-200/70 dark:border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 p-5 transition-colors hover:border-emerald-500 dark:hover:border-emerald-400" href="#" target="_blank" rel="noopener noreferrer">
+                            <div class="font-mono text-[9px] tracking-[0.25em] uppercase text-neutral-400 mb-2">Baidu</div>
+                            <div class="font-serif italic text-2xl mb-2"><span class="show-en">Baidu Netdisk</span><span class="show-cn">百度网盘</span></div>
+                            <div class="text-sm text-neutral-500 dark:text-neutral-400"><span class="show-en">Domestic mirror, can be added later.</span><span class="show-cn">国内备用渠道，后续可补充。</span></div>
+                        </a>
+                        <a id="download-quark" class="group block rounded-[22px] border border-amber-200/70 dark:border-amber-500/20 bg-gradient-to-br from-amber-500/10 to-orange-500/10 p-5 transition-colors hover:border-amber-500 dark:hover:border-amber-400" href="#" target="_blank" rel="noopener noreferrer">
+                            <div class="font-mono text-[9px] tracking-[0.25em] uppercase text-neutral-400 mb-2">Quark</div>
+                            <div class="font-serif italic text-2xl mb-2"><span class="show-en">Quark Drive</span><span class="show-cn">夸克网盘</span></div>
+                            <div class="text-sm text-neutral-500 dark:text-neutral-400"><span class="show-en">Domestic mirror, can be added later.</span><span class="show-cn">国内备用渠道，后续可补充。</span></div>
+                        </a>
+                    </div>
+                </div>
+                <div class="panel-card rounded-[26px] p-6 md:p-7 bg-white dark:bg-neutral-900">
+                    <div class="font-mono text-[9px] tracking-[0.3em] uppercase text-neutral-400 mb-5">
+                        <span class="show-en">Install Notes</span><span class="show-cn">当前安装说明</span>
+                    </div>
+                    <div class="space-y-4 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
+                        <p class="show-cn">当前 Beta 仍以源码运行形态为主，因此页面先承担统一展示与更新说明入口。后续等安装包稳定后，这里的“Official”渠道可以直接切到正式下载包。</p>
+                        <p class="show-en">The current beta is still source-oriented. This page now acts as the public product hub, and the official channel can later be switched to a packaged installer.</p>
+                        <ol class="space-y-2 list-decimal pl-5">
+                            <li><span class="show-en">Install AutoHotkey v2 and Node.js first.</span><span class="show-cn">先安装 AutoHotkey v2 与 Node.js。</span></li>
+                            <li><span class="show-en">Download the project source and run dependency install once.</span><span class="show-cn">下载项目源码后，先执行一次依赖安装。</span></li>
+                            <li><span class="show-en">Launch with <code>key_counter_simple.ahk</code>.</span><span class="show-cn">通过 <code>key_counter_simple.ahk</code> 启动。</span></li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="relative z-10 px-6 sm:px-12 md:px-24 py-16 md:py-24 border-t border-neutral-200 dark:border-white/5 flex flex-col md:flex-row justify-between items-start gap-12">
+        <div class="max-w-xs">
+            <div class="font-serif italic text-2xl mb-4">Viki.</div>
+            <p class="text-[10px] font-mono uppercase tracking-widest text-neutral-400">Viki beta release page ©2026</p>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-2 lg:flex gap-x-12 lg:gap-x-16 gap-y-4 font-mono text-[9px] tracking-[0.2em] uppercase text-neutral-400">
+            <a id="footer-home" href="../7788/7788.html" class="hover-trigger hover:text-black dark:hover:text-white transition-colors">7788</a>
+            <a id="footer-github" href="https://github.com/Van-Wu1/Viki-YourKeyCounter" target="_blank" rel="noopener noreferrer" class="hover-trigger hover:text-black dark:hover:text-white transition-colors">GitHub</a>
+            <a id="footer-update" href="../../update/latest.json" target="_blank" rel="noopener noreferrer" class="hover-trigger hover:text-black dark:hover:text-white transition-colors">Latest</a>
+            <a id="footer-author" href="https://involv.studio/" class="hover-trigger hover:text-black dark:hover:text-white transition-colors">Author</a>
+        </div>
+    </footer>
+
+    <script>
+        const html = document.documentElement;
+        const cursor = document.getElementById('cursor');
+
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            html.classList.toggle('dark');
+        });
+
+        document.getElementById('lang-toggle').addEventListener('click', () => {
+            html.classList.toggle('lang-cn');
+            syncTaglineVisibility();
+            renderNotes(window.__latestMeta);
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!cursor) return;
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+        document.querySelectorAll('.hover-trigger, a, button').forEach((el) => {
+            el.addEventListener('mouseenter', () => {
+                if (cursor) cursor.style.transform = 'translate(-50%, -50%) scale(4)';
+            });
+            el.addEventListener('mouseleave', () => {
+                if (cursor) cursor.style.transform = 'translate(-50%, -50%) scale(1)';
+            });
+        });
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) entry.target.classList.add('active');
+            });
+        }, { threshold: 0.12 });
+        document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+
+        function syncTaglineVisibility() {
+            const isCn = html.classList.contains('lang-cn');
+            document.getElementById('tagline-cn').classList.toggle('hidden', !isCn);
+            document.getElementById('tagline-en').classList.toggle('hidden', isCn);
+        }
+
+        function setLinkState(id, href) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            if (href) {
+                el.href = href;
+                el.classList.remove('download-disabled');
+            } else {
+                el.href = '#';
+                el.classList.add('download-disabled');
+            }
+        }
+
+        function renderNotes(meta) {
+            const notesEl = document.getElementById('release-notes');
+            if (!notesEl || !meta) return;
+            const isCn = html.classList.contains('lang-cn');
+            const notes = isCn ? (meta.notes?.zh || []) : (meta.notes?.en || []);
+            notesEl.innerHTML = notes.map((item) => `<li class="flex gap-3"><span class="mt-[8px] h-[4px] w-[4px] rounded-full bg-current opacity-40 flex-shrink-0"></span><span>${item}</span></li>`).join('');
+        }
+
+        async function loadLatest() {
+            try {
+                const res = await fetch('../../update/latest.json', { cache: 'no-store' });
+                if (!res.ok) return;
+                const meta = await res.json();
+                window.__latestMeta = meta;
+                document.title = (meta.product || 'Viki') + ' | Involvan\'Studio';
+                document.getElementById('current-version').textContent = meta.version || '0.9.0-beta.1';
+                document.getElementById('published-at').textContent = meta.publishedAt || '';
+                document.getElementById('channel-pill').textContent = (meta.channel || 'beta').toUpperCase();
+                if (meta.tagline?.zh) document.getElementById('tagline-cn').textContent = meta.tagline.zh;
+                if (meta.tagline?.en) document.getElementById('tagline-en').textContent = meta.tagline.en;
+                renderNotes(meta);
+                setLinkState('download-official', meta.downloads?.official);
+                setLinkState('hero-download-official', meta.downloads?.official);
+                setLinkState('download-github', meta.downloads?.github);
+                setLinkState('hero-download-github', meta.downloads?.github);
+                setLinkState('download-baidu', meta.downloads?.baidu);
+                setLinkState('download-quark', meta.downloads?.quark);
+            } catch (_) {}
+        }
+
+        syncTaglineVisibility();
+        loadLatest();
+    </script>
+</body>
+</html>

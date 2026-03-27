@@ -1,0 +1,35 @@
+{
+  "product": "Viki",
+  "brand": "Viki",
+  "channel": "beta",
+  "version": "0.9.0-beta.1",
+  "publishedAt": "2026-03-16",
+  "tagline": {
+    "zh": "记录键盘与鼠标的日常使用节奏，让健康提醒变得更自然。",
+    "en": "Track keyboard and mouse habits with a gentler layer of health-aware reminders."
+  },
+  "notes": {
+    "zh": [
+      "支持键位排行 Top 20 与鼠标明细图表",
+      "支持中英文界面切换",
+      "支持悬浮框位置一键回到主屏中央",
+      "支持久坐、腱鞘炎、喝水三类健康提醒"
+    ],
+    "en": [
+      "Added Top 20 key ranking and mouse detail charts",
+      "Added Chinese and English UI switching",
+      "Added one-click widget centering on the primary display",
+      "Added sitting, tenosynovitis, and water reminder modules"
+    ]
+  },
+  "downloads": {
+    "official": "",
+    "github": "https://github.com/Van-Wu1/Viki-YourKeyCounter",
+    "baidu": "",
+    "quark": ""
+  },
+  "links": {
+    "homepage": "https://involv.studio/pages/keycounter/keycounter.html",
+    "source": "https://github.com/Van-Wu1/Viki-YourKeyCounter"
+  }
+}
